@@ -63,8 +63,10 @@ layout). You only do the **translation** — never invent text, color, or number
    - Fix the priority flags (e.g. a high gap residual that's really section spacing, a far-color
      that needs an explicit theme override, a mis-roled node). Re-save + re-render + re-lint after fixes.
 7. **Output:** the conversion is saved as a **single file** `cache/<section-slug>.html` (git-ignored,
-   named by section) — one `<style>` block (the CSS, kept clearly at the top) followed by the markup. Show it to the dev,
-   say where it's cached, and list the remaining `verifyIR` flags so they know what to double-check.
+   named by section). `save-cli` restructures it so HTML and CSS are clearly separated **within the one
+   file**: the `<section>` markup first under a `<!-- HTML -->` comment (no inline `<style>`), then the
+   full `<style>` block at the bottom under a `<!-- STYLE -->` comment. Show it to the dev, say where it's
+   cached, and list the remaining `verifyIR` flags so they know what to double-check.
    (Webflow: paste the whole thing into an Embed. Standalone: load `lumos-foundation.css` first.)
 
 ## Mapping (EnrichedNode → Lumos)

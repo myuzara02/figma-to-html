@@ -3,8 +3,9 @@
 Generated **Figma → Lumos** conversions land here — **one file per conversion**, named by the
 **section** (a short kebab slug like `team`, `hero`, `stats`), so it's easy to find:
 
-- `<section-slug>.html` — the full Lumos section: a single `<style>` block (the CSS, kept clearly at
-  the top, separate from the markup) followed by the markup.
+- `<section-slug>.html` — the full Lumos section in one file, with HTML and CSS clearly separated:
+  the `<section>` markup under a `<!-- HTML -->` comment, then the `<style>` block under a
+  `<!-- STYLE -->` comment at the bottom.
 
 The folder's contents are **git-ignored** (local only) — only this README is tracked. Nothing here
 pollutes the repo; delete freely.

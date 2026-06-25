@@ -27,6 +27,9 @@ You translate IR → Lumos markup (per lumos-skill + the gates below)
 lintLumos → fix until clean
 ```
 
+**Translate directly from the DC (Tailwind JSX) using the lookup table in
+`references/tailwind-to-lumos.md`** — px→token, `text-[N]`→tier, color→var/scoped, layout→utility/flex.
+
 The deterministic part locks the **facts** (text verbatim, color→theme var, spacing→token,
 layout). You only do the **translation** — never invent text, color, or numbers.
 

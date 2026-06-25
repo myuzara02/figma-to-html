@@ -43,8 +43,8 @@ render compare) catches mistakes.
 | `run.ts` / `cli.ts` | runnable entry (XML + JSX → IR) | `runMerge` / CLI |
 | `lint.ts` | reject px/hex/inline-style/over-nested classes | `lintLumos` |
 | `verify.ts` | flag guessed/approximated nodes | `verifyIR`, `DEFAULT_VERIFY_THRESHOLDS` |
-| `render.ts` / `render-cli.ts` | Playwright screenshot of Lumos output (foundation + optional component CSS) | `renderToScreenshot` / CLI |
-| `split-style.ts` / `save-cli.ts` | split the inline `<style>` out → `cache/<id>.html` + `cache/<id>.css` | `splitStyle` / CLI |
+| `render.ts` / `render-cli.ts` | Playwright screenshot of Lumos output | `renderToScreenshot` / CLI |
+| `save-cli.ts` | save a conversion to the git-ignored `cache/<id>.html` (single file; CSS in its `<style>` block) | CLI |
 
 ## Data flow
 

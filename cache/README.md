@@ -1,15 +1,15 @@
 # cache
 
-Generated **Figma → Lumos** conversion outputs land here. Each conversion writes two files,
-named by the Figma node id (`:` → `-`):
+Generated **Figma → Lumos** conversions land here — **one file per conversion**, named by the
+Figma node id (`:` → `-`):
 
-- `<nodeId>.html` — the Lumos section markup (no inline `<style>`).
-- `<nodeId>.css` — the component CSS for that section.
+- `<nodeId>.html` — the full Lumos section: a single `<style>` block (the CSS, kept clearly at the
+  top, separate from the markup) followed by the markup.
 
-The folder's contents are **git-ignored** (local only) — only this README is tracked. Nothing
-here pollutes the repo; delete freely.
+The folder's contents are **git-ignored** (local only) — only this README is tracked. Nothing here
+pollutes the repo; delete freely.
 
 **Using the output:**
-- *Webflow:* paste `<nodeId>.html` into an Embed; put `<nodeId>.css` into page/site custom code
-  (or its own Embed `<style>`). The Lumos foundation must already be in the Webflow project.
-- *Standalone preview:* link the CSS from the HTML and include `lumos-foundation.css` first.
+- *Webflow:* paste the whole `<nodeId>.html` into an Embed (the `<style>` + markup go together).
+  The Lumos foundation must already be in the Webflow project.
+- *Standalone preview:* load `lumos-foundation.css` first, then the file.

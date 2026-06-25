@@ -2,22 +2,19 @@ import { chromium } from "playwright";
 
 export interface RenderOptions {
   foundationCss: string;
-  /** Per-component CSS (when the markup's <style> has been split into a separate file). */
-  componentCss?: string;
   width?: number;
 }
 
-/** Render Lumos markup (with the foundation + optional component CSS inlined) to a full-page screenshot. */
+/** Render Lumos markup (with the foundation CSS inlined; the markup keeps its own <style>) to a screenshot. */
 export async function renderToScreenshot(
   markupHtml: string,
   outPath: string,
   opts: RenderOptions,
 ): Promise<void> {
   const width = opts.width ?? 1440;
-  const css = opts.componentCss ? `${opts.foundationCss}\n${opts.componentCss}` : opts.foundationCss;
   const doc = `<!doctype html>
 <html>
-  <head><meta charset="utf-8"><style>${css}</style></head>
+  <head><meta charset="utf-8"><style>${opts.foundationCss}</style></head>
   <body>${markupHtml}</body>
 </html>`;
 

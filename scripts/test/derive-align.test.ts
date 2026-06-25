@@ -13,6 +13,16 @@ describe("deriveAlign (cross-axis)", () => {
   });
 });
 
+describe("deriveAlign (cross-axis)", () => {
+  it("column with shared right edges → end", () => {
+    // column layout → cross axis is X; ends all = 30
+    expect(deriveAlign([box(20, 0, 10, 10), box(0, 20, 30, 10)], "column")).toBe("end");
+  });
+  it("column with no shared edge/center → stretch", () => {
+    expect(deriveAlign([box(0, 0, 10, 10), box(0, 20, 40, 10), box(5, 40, 20, 10)], "column")).toBe("stretch");
+  });
+});
+
 describe("deriveJustify (main-axis)", () => {
   it("equal leading and trailing space → center", () => {
     const container = { x: 0, y: 0, w: 100, h: 20 };

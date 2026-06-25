@@ -21,4 +21,13 @@ describe("bandByAxis", () => {
     const items = [box("a", 0, 0), box("b", 20, 0), box("c", 0, 20), box("d", 20, 20)];
     expect(ids(bandByAxis(items, "y"))).toEqual([["a", "b"], ["c", "d"]]);
   });
+
+  it("one column band for a single vertical stack on x-axis", () => {
+    const items = [box("a", 0, 0), box("b", 0, 20), box("c", 0, 40)];
+    expect(ids(bandByAxis(items, "x"))).toEqual([["a", "b", "c"]]);
+  });
+  it("multiple column bands for a horizontal row on x-axis", () => {
+    const items = [box("a", 0, 0), box("b", 20, 0), box("c", 40, 0)];
+    expect(ids(bandByAxis(items, "x"))).toEqual([["a"], ["b"], ["c"]]);
+  });
 });

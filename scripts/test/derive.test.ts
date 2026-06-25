@@ -27,3 +27,19 @@ describe("derivePadding", () => {
     expect(derivePadding(container, children)).toEqual({ top: 20, right: 20, bottom: 50, left: 10 });
   });
 });
+
+describe("deriveGap edge cases", () => {
+  it("empty children → gap 0", () => {
+    expect(deriveGap([], "row")).toEqual({ gap: 0 });
+  });
+  it("single child → gap 0", () => {
+    expect(deriveGap([box(0, 0)], "column")).toEqual({ gap: 0 });
+  });
+});
+
+describe("derivePadding single child", () => {
+  it("insets from container to the one child", () => {
+    const container = { x: 0, y: 0, w: 100, h: 100 };
+    expect(derivePadding(container, [box(10, 10, 30, 30)])).toEqual({ top: 10, right: 60, bottom: 60, left: 10 });
+  });
+});

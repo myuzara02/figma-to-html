@@ -1,6 +1,5 @@
 import { boundingBox, median, type Rect } from "./geometry";
-import type { LayoutDirection, Padding } from "./ir";
-import type { Align, Sizing } from "./ir";
+import type { LayoutDirection, Padding, Align, Sizing } from "./ir";
 import { bandByAxis } from "./banding";
 
 /** Gaps between consecutive items sorted along an axis (clamped at 0). */
@@ -81,8 +80,8 @@ export function deriveJustify<T extends { rect: Rect }>(
   const last = sorted[sorted.length - 1].rect;
   const lead = startOf(first) - cStart;
   const trail = cStart + cSize - (startOf(last) + sizeOf(last));
-  const TOL = 4;
-  if (Math.abs(lead - trail) <= TOL) return "center";
+  const JUSTIFY_TOL = 4;
+  if (Math.abs(lead - trail) <= JUSTIFY_TOL) return "center";
   return lead < trail ? "start" : "end";
 }
 
@@ -94,9 +93,9 @@ export function deriveSizing(
 ): { width: Sizing; height: Sizing } {
   const contentW = parent.w - parentPadding.left - parentPadding.right;
   const contentH = parent.h - parentPadding.top - parentPadding.bottom;
-  const TOL = 2;
+  const SIZING_TOL = 2;
   return {
-    width: Math.abs(child.w - contentW) <= TOL ? "fill" : "fixed",
-    height: Math.abs(child.h - contentH) <= TOL ? "fill" : "fixed",
+    width: Math.abs(child.w - contentW) <= SIZING_TOL ? "fill" : "fixed",
+    height: Math.abs(child.h - contentH) <= SIZING_TOL ? "fill" : "fixed",
   };
 }

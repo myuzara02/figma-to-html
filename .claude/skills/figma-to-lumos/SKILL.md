@@ -50,16 +50,20 @@ layout). You only do the **translation** — never invent text, color, or number
      report of flagged nodes (low layout confidence, high gap/type residual, far color, empty text,
      missing asset, ambiguous stack). These are the spots the pipeline **guessed or approximated**.
    - **Visual:** render your output and compare it to the real Figma image (region-level):
-     1. save your generated markup to a file, then from `scripts/`:
-        `npx tsx src/dc/render-cli.ts <markup.html> <render.png> 1440` (inlines the Lumos foundation,
-        screenshots via Playwright; run `npx playwright install chromium` once if it's missing).
-     2. `get_screenshot(fileKey, nodeId)` → the Figma image.
-     3. Read both PNGs and compare **coarsely**: every block present, right order, grid-vs-stack
+     1. save your generated section (markup + inline `<style>`) to a temp file, then split + cache it
+        from `scripts/`: `npx tsx src/dc/save-cli.ts <combined.html> <nodeId>` → writes
+        `cache/<nodeId>.html` (markup) + `cache/<nodeId>.css` (component CSS), both git-ignored.
+     2. render the split pair: `npx tsx src/dc/render-cli.ts cache/<nodeId>.html <render.png> 1440 cache/<nodeId>.css`
+        (inlines the Lumos foundation + your CSS; run `npx playwright install chromium` once if missing).
+     3. `get_screenshot(fileKey, nodeId)` → the Figma image.
+     4. Read both PNGs and compare **coarsely**: every block present, right order, grid-vs-stack
         correct, proportions roughly right? Focus on the `verifyIR`-flagged nodes.
    - Fix the priority flags (e.g. a high gap residual that's really section spacing, a far-color
-     that needs an explicit theme override, a mis-roled node). Re-render + re-lint after fixes.
-7. **Output** the Lumos markup, plus a short report listing the remaining `verifyIR` flags so the dev
-   knows exactly what to double-check.
+     that needs an explicit theme override, a mis-roled node). Re-save + re-render + re-lint after fixes.
+7. **Output:** the conversion is saved as **two files** in `cache/` — `<nodeId>.html` (markup) and
+   `<nodeId>.css` (component CSS), separated (no inline `<style>`). Show the markup + CSS to the dev,
+   tell them where it's cached, and list the remaining `verifyIR` flags so they know what to double-check.
+   (Webflow: HTML → Embed, CSS → page/site custom code. Standalone: link them + load the foundation first.)
 
 ## Mapping (EnrichedNode → Lumos)
 

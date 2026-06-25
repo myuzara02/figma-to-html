@@ -35,3 +35,7 @@ Thumbs.db
 
 # NOTE: notes/ and all .md files are intentionally TRACKED.
 # They are the shared source of truth — do not ignore them.
+
+# --- Generated conversion outputs (local only) ---
+/cache/*
+!/cache/README.md

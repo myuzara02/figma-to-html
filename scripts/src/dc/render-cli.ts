@@ -2,9 +2,9 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { renderToScreenshot } from "./render";
 
-const [, , markupPath, outPath, widthArg] = process.argv;
+const [, , markupPath, outPath, widthArg, cssPath] = process.argv;
 if (!markupPath || !outPath) {
-  console.error("usage: render-cli <markup.html> <out.png> [width]");
+  console.error("usage: render-cli <markup.html> <out.png> [width] [component.css]");
   process.exit(1);
 }
 
@@ -12,7 +12,8 @@ if (!markupPath || !outPath) {
 const foundationUrl = new URL("../../../.claude/skills/lumos-skill/assets/lumos-foundation.css", import.meta.url);
 const foundationCss = readFileSync(fileURLToPath(foundationUrl), "utf8");
 const markupHtml = readFileSync(markupPath, "utf8");
+const componentCss = cssPath ? readFileSync(cssPath, "utf8") : undefined;
 const width = widthArg ? Number(widthArg) : undefined;
 
-await renderToScreenshot(markupHtml, outPath, { foundationCss, width });
+await renderToScreenshot(markupHtml, outPath, { foundationCss, componentCss, width });
 console.log("rendered", outPath);

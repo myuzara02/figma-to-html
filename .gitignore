@@ -30,5 +30,8 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 
+# --- Superpowers process scratch (briefs, reports, ledgers, diffs) ---
+.superpowers/
+
 # NOTE: notes/ and all .md files are intentionally TRACKED.
 # They are the shared source of truth — do not ignore them.

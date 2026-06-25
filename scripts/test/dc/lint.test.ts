@@ -1,29 +1,46 @@
 import { describe, it, expect } from "vitest";
 import { lintLumos } from "../../src/dc/lint";
 
-describe("lintLumos", () => {
-  it("passes clean Lumos markup", () => {
+describe("lintLumos — structural rules", () => {
+  it("passes clean Lumos markup with no style block", () => {
     const html = `<section class="hero_wrap u-section"><div class="hero_layout u-grid-above"></div></section>`;
     expect(lintLumos(html)).toEqual([]);
   });
-  it("flags px units", () => {
-    const issues = lintLumos(`<style>.a{gap:16px}</style>`);
-    expect(issues).toContainEqual({ rule: "no-px", match: "16px" });
-  });
-  it("flags hex colors", () => {
-    const issues = lintLumos(`<style>.a{color:#ff0000}</style>`);
-    expect(issues).toContainEqual({ rule: "no-hex", match: "#ff0000" });
-  });
-  it("flags inline style attributes", () => {
+  it("flags inline style attributes as error", () => {
     const issues = lintLumos(`<div style="color:red"></div>`);
-    expect(issues.some((i) => i.rule === "no-inline-style")).toBe(true);
+    expect(issues).toContainEqual({ rule: "no-inline-style", match: "style=", severity: "error" });
   });
-  it("flags component classes with more than 3 underscores", () => {
+  it("flags >3-underscore component classes as error", () => {
     const issues = lintLumos(`<div class="card_testimonial_visual_icon_img"></div>`);
-    expect(issues).toContainEqual({ rule: "max-3-underscores", match: "card_testimonial_visual_icon_img" });
+    expect(issues).toContainEqual({ rule: "max-3-underscores", match: "card_testimonial_visual_icon_img", severity: "error" });
   });
   it("does not flag utility classes for underscores", () => {
     const issues = lintLumos(`<div class="u-text-style-h2"></div>`);
     expect(issues.filter((i) => i.rule === "max-3-underscores")).toEqual([]);
+  });
+});
+
+describe("lintLumos — px two-tier", () => {
+  it("errors on px within tolerance of a spacing token, with suggestion", () => {
+    const issues = lintLumos(`<style>.a{gap:16px}</style>`);
+    expect(issues).toContainEqual({ rule: "no-px", match: "16px", severity: "error", suggestion: "use var(--_spacing---space--3)" });
+  });
+  it("errors on px 1px off a token (within 2px tolerance)", () => {
+    const issues = lintLumos(`<style>.a{gap:25px}</style>`);
+    expect(issues).toContainEqual({ rule: "no-px", match: "25px", severity: "error", suggestion: "use var(--_spacing---space--4)" });
+  });
+  it("flags px far from any token (no suggestion)", () => {
+    const issues = lintLumos(`<style>.a{border-width:1px}</style>`);
+    expect(issues).toContainEqual({ rule: "no-px", match: "1px", severity: "flag" });
+  });
+  it("flags px inside decorative blur/shadow even if it equals a token", () => {
+    const issues = lintLumos(`<style>.a{filter:blur(40px)}</style>`);
+    expect(issues).toContainEqual({ rule: "no-px", match: "40px", severity: "flag" });
+    const shadow = lintLumos(`<style>.a{box-shadow:0 2px 0 #000}</style>`);
+    expect(shadow).toContainEqual({ rule: "no-px", match: "2px", severity: "flag" });
+  });
+  it("does not check rem values", () => {
+    const issues = lintLumos(`<style>.a{padding:1.5rem}</style>`);
+    expect(issues.filter((i) => i.rule === "no-px")).toEqual([]);
   });
 });

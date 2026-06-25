@@ -78,11 +78,20 @@ Each node has: `role`, `text`, `style`, `asset`, `layout`, `children`.
   only when a max line width is needed.
 - **role `divider`** → a thin `<div>` component class (e.g. `border-top` via `var(--border-width--main)`).
 - **role `image`** → `<img>` with a component class; `src` = `asset.url` (snapshot it — URLs expire).
-- **layout**:
-  - `layout.layout === "grid"` → `u-grid-above` on the `_layout` div, set `--_column-count---value`.
-  - `"row"`/`"column"` → component class with `display: flex; flex-direction: …; gap: var(--_spacing---<gap.token>)`.
-  - `gap.token` → `var(--_spacing---<token>)`. **Skip gap entirely** when `children.length < 2`.
-  - `align`/`justify` → `align-items`/`justify-content` (or `u-alignment-center` when centered).
+- **layout** — **PREFER Lumos layout utilities (combo classes) over hand-written flex.** Reach for a
+  utility whenever it reasonably fits; use raw `display: flex` only as a fallback.
+  - `"grid"` → `u-grid-above` on the `_layout` div; set `--_column-count---value` to the column count.
+  - `"row"` with roughly equal / aligned children → **also `u-grid-above`** (set
+    `--_column-count---value` = child count). It's the idiomatic Lumos multi-column and auto-collapses
+    to a vertical stack on mobile — no `@container` needed. Override `grid-column-gap`/`grid-row-gap`
+    on the combo class if needed.
+  - `"column"` / vertical stack → rely on the container's flex-column (`u-section` / `u-container` are
+    already `flex-flow: column`); add a component class only for a custom `gap`.
+  - **`display: flex` (component CSS) is the FALLBACK only** — use it for uneven rows,
+    `justify-between` / alignment-driven rows, button groups, or small inline pairs that aren't a grid.
+  - `gap.token` → `grid-column-gap`/`grid-row-gap` (grid) or `gap` (flex) = `var(--_spacing---<token>)`.
+    **Skip gap entirely** when `children.length < 2`.
+  - `align`/`justify` → on the combo class, or `u-alignment-center` when centered.
 - **style**: `colorVar` → `var(<colorVar>)` (only when it differs from the section's inherited
   text color); `colorAlpha < 1` → `color-mix(in hsl, var(<colorVar>) <alpha*100>%, transparent)`.
   `bgColorVar`/`bgColorAlpha` → the element's `background-color` (pick the theme class

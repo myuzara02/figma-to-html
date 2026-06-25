@@ -9,6 +9,9 @@ export interface StyleInfo {
   colorVar?: string;
   colorDistance?: number;
   colorAlpha?: number;
+  bgColorVar?: string;
+  bgColorDistance?: number;
+  bgColorAlpha?: number;
   lineHeight?: number;
   lineHeightPx?: number;
   letterSpacingPx?: number;
@@ -39,6 +42,16 @@ export function resolveStyle(facts: StyleFacts, scales: StyleScales): StyleInfo 
     }
     const parsed = parseColor(facts.color);
     if (parsed) out.colorAlpha = parsed.a;
+  }
+
+  if (facts.bgColor !== undefined) {
+    const match = mapColor(facts.bgColor, scales.palette);
+    if (match) {
+      out.bgColorVar = match.themeVar;
+      out.bgColorDistance = match.distance;
+    }
+    const parsed = parseColor(facts.bgColor);
+    if (parsed) out.bgColorAlpha = parsed.a;
   }
 
   if (facts.lineHeight !== undefined) out.lineHeight = facts.lineHeight;

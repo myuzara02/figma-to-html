@@ -46,6 +46,28 @@ export function parseTailwind(className: string): StyleFacts {
     const wkw = tok.match(/^w-\[(min-content|max-content)\]$/);
     if (wkw) { facts.widthKeyword = wkw[1] as "min-content" | "max-content"; continue; }
 
+    // --- typography ---
+    const font = tok.match(/^font-\['([^':\]]+):([^'\]]+)'\]$/);
+    if (font) { facts.fontFamily = font[1]; facts.fontWeight = font[2]; continue; }
+
+    const size = tok.match(/^text-\[(\d+(?:\.\d+)?)px\]$/);
+    if (size) { facts.fontSizePx = Number(size[1]); continue; }
+
+    const leading = tok.match(/^leading-\[(\d+(?:\.\d+)?)\]$/);
+    if (leading) { facts.lineHeight = Number(leading[1]); continue; }
+
+    const tracking = tok.match(/^tracking-\[(-?\d+(?:\.\d+)?)px\]$/);
+    if (tracking) { facts.letterSpacingPx = Number(tracking[1]); continue; }
+
+    const talign = tok.match(/^text-(left|center|right)$/);
+    if (talign) { facts.textAlign = talign[1] as "left" | "center" | "right"; continue; }
+
+    // --- color (after size/align so it does not swallow them) ---
+    const colorBracket = tok.match(/^text-\[(.+)\]$/);
+    if (colorBracket) { facts.color = colorBracket[1]; continue; }
+    if (tok === "text-white") { facts.color = "white"; continue; }
+    if (tok === "text-black") { facts.color = "black"; continue; }
+
     // unknown token → ignore
   }
   return facts;

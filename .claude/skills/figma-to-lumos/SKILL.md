@@ -51,17 +51,19 @@ layout). You only do the **translation** — never invent text, color, or number
      missing asset, ambiguous stack). These are the spots the pipeline **guessed or approximated**.
    - **Visual:** render your output and compare it to the real Figma image (region-level):
      1. save your generated section (markup + its `<style>` block) to `cache/` from `scripts/`:
-        `npx tsx src/dc/save-cli.ts <combined.html> <nodeId>` → writes the single git-ignored file
-        `cache/<nodeId>.html` (CSS stays in the `<style>` block, separate from the markup).
-     2. render it: `npx tsx src/dc/render-cli.ts cache/<nodeId>.html <render.png> 1440`
+        `npx tsx src/dc/save-cli.ts <combined.html> <section-slug>` → writes the single git-ignored
+        file `cache/<section-slug>.html` (CSS stays in the `<style>` block, separate from the markup).
+        **Name the file by the section, not the node id** — a short kebab slug from the Figma
+        `data-name` / section purpose (e.g. `team`, `hero`, `stats`, `pricing`), so it's findable.
+     2. render it: `npx tsx src/dc/render-cli.ts cache/<section-slug>.html <render.png> 1440`
         (inlines the Lumos foundation; run `npx playwright install chromium` once if missing).
      3. `get_screenshot(fileKey, nodeId)` → the Figma image.
      4. Read both PNGs and compare **coarsely**: every block present, right order, grid-vs-stack
         correct, proportions roughly right? Focus on the `verifyIR`-flagged nodes.
    - Fix the priority flags (e.g. a high gap residual that's really section spacing, a far-color
      that needs an explicit theme override, a mis-roled node). Re-save + re-render + re-lint after fixes.
-7. **Output:** the conversion is saved as a **single file** `cache/<nodeId>.html` (git-ignored) — one
-   `<style>` block (the CSS, kept clearly at the top) followed by the markup. Show it to the dev,
+7. **Output:** the conversion is saved as a **single file** `cache/<section-slug>.html` (git-ignored,
+   named by section) — one `<style>` block (the CSS, kept clearly at the top) followed by the markup. Show it to the dev,
    say where it's cached, and list the remaining `verifyIR` flags so they know what to double-check.
    (Webflow: paste the whole thing into an Embed. Standalone: load `lumos-foundation.css` first.)
 

@@ -36,9 +36,9 @@ When generating a full page, see `references/vanilla-mode.md` for the project sk
 - Vanilla HTML, CSS, JS only
 - Only write CSS for component classes and container queries — never for `u-*` utilities
 - No CSS resets, `:root` definitions, `body` styles, or utility redefinitions
-- No `px` — default to `rem`. Text `max-width` uses `ch`. Container query breakpoints use `em`
+- No `px` — default to `rem`. Text `max-width` uses `ch`, set via `data-number="N"` (see Typography). Container query breakpoints use `em`
 - Class-only selectors — no tag names, IDs, data attributes, or descendant selectors
-- No fallback values in `var()` — exception: responsive keyword variables (e.g. `var(--flex-medium, grid)`)
+- No fallback values in `var()`
 - No inline `style=""` — put styles in `<style>` block
 - `<style>` first child inside `_wrap`, `<script>` last child:
   ```html
@@ -141,13 +141,11 @@ When generating a full page, see `references/vanilla-mode.md` for the project sk
 - `u-container`: `max-width: var(--max-width--main); width: calc(100% - var(--site--margin) * 2); display: flex; flex-flow: column; container-type: inline-size; gap: var(--_spacing---space--8)`
 - **Never apply layout directly on `u-container`** — it has `container-type: inline-size`, so `@container` rules affect its children, not itself. Always use a child `_layout` div:
   ```css
-  /* CORRECT */
-  .hero_layout {
-    display: var(--flex-medium, grid);
-    flex-direction: column;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
+  /* CORRECT — `u-grid-above` on the _layout div supplies the grid; just set the column count */
+  .hero_layout.u-grid-above {
+    --_column-count---value: 12;
   }
-  /* WRONG */
+  /* WRONG — layout on the container itself */
   .hero_contain {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -157,9 +155,10 @@ When generating a full page, see `references/vanilla-mode.md` for the project sk
 
 ### Layout
 
+- Grids use `u-grid-above` (or `u-grid-below`) on the `_layout` div — the utility provides `display: grid`, the `--site--gutter` gutters, and `flex-flow: column`. Set the column count with `--_column-count---value` on the combo class (`.hero_layout.u-grid-above { --_column-count---value: 12; }`); override `grid-column-gap`/`grid-row-gap` there if needed. Don't write `display: grid` or `grid-template-columns` by hand
 - Grid columns: always `minmax(0, 1fr)` — never bare `1fr`: `repeat(2, minmax(0, 1fr))` not `1fr 1fr`
 - `grid-column-end: span 5` not `grid-column-end: 6`. Both: `grid-column: 1 / span 5`
-- Any element with `display: var(--flex-medium, grid)` or `display: grid` must also have `flex-direction: column`
+- If you ever set `display: grid` manually (outside `u-grid-*`), it must also have `flex-direction: column` so it stacks when collapsed — but prefer `u-grid-above`/`u-grid-below`, which already include this
 - Direct grid children need `width: 100%`
 - Content blocks: `width: 100%` + `align-self: start|center|end` for vertical alignment
 - Two-column grids: `grid-row-gap: var(--_spacing---space--8)`
@@ -186,13 +185,13 @@ When generating a full page, see `references/vanilla-mode.md` for the project sk
 - Letter spacing: use `--_typography---letter-spacing--tight` (-0.03em) — never raw values like `-0.03em` or `-1px`
 - Most headings and body text need `margin-bottom: var(--_text-style---margin-bottom)` for vertical rhythm
 - The direct parent of text elements with margins (usually `_content`) should have `u-margin-trim`
-- **Text wrapping pattern**: since `_content` is `display: block`, headings and paragraphs that need a `max-width` must be wrapped in a div with `u-heading` or `u-text`. These utilities have `min-width: 100%`, `flex-direction: column`, and `align-items: inherit` — so they stay full width, pass `max-width` to their direct children via `max-width: inherit`, and inherit center alignment from `_content`. The component class, `display: flex`, `max-width`, and `margin-bottom` go on the wrapper. **When centering, add `u-alignment-center` to `_content`** — this utility provides `text-align: center`, `justify-content: center`, and `align-items: center`. Don't write these styles manually. Flex children like `u-button-wrapper` and `u-heading`/`u-text` wrappers use `justify-content: inherit` and `align-items: inherit` to pick up alignment from `_content`:
+- **Text wrapping pattern**: since `_content` is `display: block`, headings and paragraphs that need a `max-width` must be wrapped in a div with `u-heading` or `u-text`. These utilities have `min-width: 100%`, `flex-direction: column`, `align-items: inherit`, and `max-width: calc(var(--number) * 1ch)` — so they stay full width, pass the character-based max-width to their direct children via `max-width: inherit`, and inherit center alignment from `_content`. **Set the line width with `data-number="N"` on the wrapper** (N = max characters per line) — never write a `max-width` declaration in CSS for text. The component class, `display: flex`, and `margin-bottom` go on the wrapper. **When centering, add `u-alignment-center` to `_content`** — this utility provides `text-align: center`, `justify-content: center`, and `align-items: center`. Don't write these styles manually. Flex children like `u-button-wrapper` and `u-heading`/`u-text` wrappers use `justify-content: inherit` and `align-items: inherit` to pick up alignment from `_content`:
   ```html
   <div class="hero_content u-alignment-center u-margin-trim">
-    <div class="hero_title u-heading u-text-style-h2">
+    <div class="hero_title u-heading u-text-style-h2" data-number="10">
       <h1></h1>
     </div>
-    <div class="hero_text u-text u-text-style-small">
+    <div class="hero_text u-text u-text-style-small" data-number="40">
       <p></p>
     </div>
   </div>
@@ -203,12 +202,10 @@ When generating a full page, see `references/vanilla-mode.md` for the project sk
   }
   .hero_title {
     display: flex;
-    max-width: 10ch;
     margin-bottom: var(--_text-style---margin-bottom);
   }
   .hero_text {
     display: flex;
-    max-width: 40ch;
     margin-bottom: var(--_text-style---margin-bottom);
   }
   ```
@@ -268,63 +265,59 @@ When generating a full page, see `references/vanilla-mode.md` for the project sk
 
 ### Responsive
 
-- Never `@media`. Prefer responsive variables; use `@container` only when variables can't express the change
-- Every `display`, `flex-direction`, `align-items`, and `position` switch MUST use responsive variables:
+Responsive uses the **threshold + utility** approach — never `@media`, and no `--_responsive---*` / `--flex-*` keyword-variable math. Responsive switches react to **page width** via named container queries declared on `body`.
 
-  ```css
-  /* CORRECT */
+#### Threshold containers
+
+Declared on `body`: `threshold-large` (62em), `threshold-medium` (48em), `threshold-small` (30em). Query them by name to react to page width.
+
+#### Grid → stack (the common case)
+
+Add `u-grid-above` to the `_layout` div. The utility itself supplies `display: grid`, the gutters (`--site--gutter`), and `flex-flow: column` — you only set the **column count** via `--_column-count---value` on the component combo class. Below the large threshold (62em) the threshold query collapses it to a vertical flex stack:
+
+```html
+<div class="hero_layout u-grid-above"></div>
+```
+
+```css
+.hero_layout.u-grid-above {
+  --_column-count---value: 2;
+  /* optional — override the default gutters: */
+  grid-column-gap: var(--_spacing---space--6);
+  grid-row-gap: var(--_spacing---space--6);
+}
+```
+
+Never write `display: grid` or `grid-template-columns` yourself — `u-grid-above` already does. `u-grid-below` is the inverse (stacked above the breakpoint, grid below) — rare.
+
+#### Reorder / reset at a threshold
+
+- `u-order-unset-above` / `u-order-unset-below` — drop a custom `order` above / below the breakpoint
+- `u-all-unset-above` / `u-all-unset-below` — reset every property above / below the breakpoint
+
+#### Everything else
+
+For flex-direction switches, alignment changes, a different column count, or a collapse point other than 62em, write an explicit named threshold query — pick the container matching the breakpoint:
+
+```css
+/* CORRECT — react to page width via the named threshold container */
+@container threshold-medium (width < 48em) {
   .enterprise_header {
-    display: var(--flex-medium, grid);
+    flex-direction: column;
+    align-items: start;
+  }
+}
+
+/* WRONG — never @media */
+@media (max-width: 48em) {
+  .enterprise_header {
     flex-direction: column;
   }
-  .enterprise_case_header {
-    flex-direction: var(--column-medium, row);
-    align-items: var(--start-medium, center);
-  }
+}
+```
 
-  /* WRONG — never use @container for simple keyword switches */
-  @container (width < 50em) {
-    .enterprise_header {
-      display: flex;
-    }
-  }
-  ```
-
-- Don't mix both — if one part needs `@container`, use it for the whole component
-
-#### Responsive Variables
-
-- `--_responsive---large` (~50em+), `--_responsive---medium` (~35–50em), `--_responsive---small` (~20–35em), `--_responsive---xsmall` (~<20em) — one is `1`, rest `0`
-- Keywords per breakpoint (medium/small/xsmall): `--flex-*`, `--none-*`, `--column-*`, `--row-*`, `--start-*`, `--center-*`, `--end-*`, `--first-*`, `--last-*`, `--unset-*`, `--relative-*`
-- Patterns:
-  ```css
-  display: var(--flex-medium, grid);
-  flex-direction: var(--column-medium, row);
-  position: var(--relative-medium, sticky);
-  top: calc(
-    (var(--nav--height-total) + var(--_spacing---space--2)) *
-      var(--_responsive---large)
-  );
-  max-height: var(
-    --unset-medium,
-    calc(
-      100svh - var(--nav--height-total) - var(--_spacing---space--2) -
-        var(--_spacing---space--2)
-    )
-  );
-  grid-template-columns: repeat(
-    calc(
-      var(--_responsive---large) * 4 + var(--_responsive---medium) * 3 +
-        var(--_responsive---small) * 2 + var(--_responsive---xsmall) * 1
-    ),
-    minmax(0, 1fr)
-  );
-  ```
-
-#### Container Queries
-
-- Target: `u-container` (`container-type: inline-size`). Affects children only
-- Breakpoints in `em`: `@container (width < 50em) { .el { } }`
+- Breakpoints always in `em`: large `62em`, medium `48em`, small `30em`
+- Threshold queries react to **page** width (the `body` container). To react to a component's **own** width instead, query the nearest `u-container` (`container-type: inline-size`) with an unnamed `@container (width < Xem)` — affects its children only
 
 ### Trigger & State System
 
@@ -479,10 +472,8 @@ This applies everywhere, not just visual compositions.
 ```html
 <section class="hero_wrap u-section">
   <style>
-    .hero_layout {
-      display: var(--flex-medium, grid);
-      flex-direction: column;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
+    .hero_layout.u-grid-above {
+      --_column-count---value: 2;
     }
     .hero_title {
       margin-bottom: var(--_text-style---margin-bottom);
@@ -492,7 +483,7 @@ This applies everywhere, not just visual compositions.
     }
   </style>
   <div class="hero_contain u-container">
-    <div class="hero_layout">
+    <div class="hero_layout u-grid-above">
       <div class="hero_content u-margin-trim">
         <h1 class="hero_title u-text-style-h1"></h1>
         <p class="hero_text u-text-style-main"></p>
@@ -509,13 +500,14 @@ This applies everywhere, not just visual compositions.
 - `@media` queries
 - `:hover`, `:focus`, or any interactive pseudo-class in CSS — use `data-trigger` and `--_trigger---on`/`--_trigger---off`
 - `.is-active`, `[data-state]`, `[data-trigger]` in CSS selectors
-- `@container` for simple display/direction/position switches (use responsive variables)
+- The `--_responsive---*` / `--flex-medium` keyword-variable system — removed; use threshold utilities (`u-grid-above`/`u-grid-below`) and named `@container threshold-*` queries
 - `@keyframes` with state/trigger selectors
-- Fallback values in `var()` (except responsive keywords)
+- Fallback values in `var()`
 - `false`/`off` before `true`/`on` in expressions
 - Unscoped combo classes
 - Grid columns with bare `1fr` — always `minmax(0, 1fr)`
 - `display: grid` or layout on `u-container` — use a child `_layout` div
+- Hand-writing `display: grid` / `grid-template-columns` on a `_layout` — use `u-grid-above`/`u-grid-below` and set `--_column-count---value` on the combo class
 - Hex color codes (`#ff0000`, `#333`) anywhere — CSS, comments, or prose. Never reference hex values
 - Hardcoded colors (`white`, `black`, etc.) or border widths — always use `--_theme---*` variables
 - `color` on headings/paragraphs that matches the section's inherited `--_theme---text` — redundant
@@ -526,6 +518,7 @@ This applies everywhere, not just visual compositions.
 - Combo classes in CSS but not in the HTML — Webflow purges them; put them in a `_hidden u-display-none` div _(Webflow only)_
 - Text elements missing `margin-bottom: var(--_text-style---margin-bottom)`
 - Text parent missing `u-margin-trim`
+- Hardcoding `max-width: Nch` (or any `max-width`) on text — set `data-number="N"` on the `u-heading`/`u-text` wrapper instead
 - Empty divs without `padding: 0` _(Webflow only)_
 - Buttons without padding
 - `<style>` not first child or `<script>` not last child inside `_wrap`

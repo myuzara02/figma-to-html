@@ -1218,6 +1218,10 @@ label:has(input:focus-visible) [data-outline] {
   display: flex;
   flex-direction: column;
   min-width: 100%;
+  /* Text max-width in characters, set per element via data-number="N".
+     With no data-number the calc is invalid and dropped, so there is no limit
+     (use data-number="-1" to explicitly clear an inherited one). */
+  max-width: calc(var(--number) * 1ch);
   align-items: inherit;
   justify-content: inherit;
 }
@@ -1271,79 +1275,37 @@ label:has(input:focus-visible) [data-outline] {
   border: 0;
 }
 
-/* --- Responsive variable system (reconstructed) -------------------------
-   Component code reads:  display: var(--flex-medium, grid);
-                          grid-template-columns: repeat(calc(... var(--_responsive---large) ...));
-   Defaults = "large". Container queries below target descendants of .u-container
-   (the inline-size container) and flip the flags + set keyword variables at each
-   breakpoint. Keyword vars are unset above their breakpoint so the var() fallback
-   (the "large" value) applies.
-   Breakpoints: large 50em+ · medium 35–50em · small 20–35em · xsmall <20em.
+/* --- Responsive system: threshold containers ----------------------------
+   This skill uses the threshold + utility approach below — NOT a CSS-variable
+   keyword system. Responsive switches react to PAGE width via the named
+   threshold-large / threshold-medium / threshold-small container queries on
+   `body`. The grid/order utilities (u-grid-above, u-grid-below, u-order-unset-*,
+   u-all-unset-*) ride on those, and any other responsive change is written as an
+   explicit `@container threshold-large|medium|small (...)` rule.
+   (The old --_responsive---* / --flex-* keyword-variable system was removed.)
    ------------------------------------------------------------------------- */
-:root {
-  --_responsive---large: 1;
-  --_responsive---medium: 0;
-  --_responsive---small: 0;
-  --_responsive---xsmall: 0;
-}
-@container (width <= 50em) {
-  * {
-    --_responsive---large: 0;
-    --_responsive---medium: 1;
-    --_responsive---small: 0;
-    --_responsive---xsmall: 0;
-    --flex-medium: flex;
-    --none-medium: none;
-    --column-medium: column;
-    --row-medium: row;
-    --start-medium: start;
-    --center-medium: center;
-    --end-medium: end;
-    --first-medium: -1;
-    --last-medium: 1;
-    --unset-medium: unset;
-    --relative-medium: relative;
-  }
-}
-@container (width <= 35em) {
-  * {
-    --_responsive---medium: 0;
-    --_responsive---small: 1;
-    --flex-small: flex;
-    --none-small: none;
-    --column-small: column;
-    --row-small: row;
-    --start-small: start;
-    --center-small: center;
-    --end-small: end;
-    --first-small: -1;
-    --last-small: 1;
-    --unset-small: unset;
-    --relative-small: relative;
-  }
-}
-@container (width <= 20em) {
-  * {
-    --_responsive---small: 0;
-    --_responsive---xsmall: 1;
-    --flex-xsmall: flex;
-    --none-xsmall: none;
-    --column-xsmall: column;
-    --row-xsmall: row;
-    --start-xsmall: start;
-    --center-xsmall: center;
-    --end-xsmall: end;
-    --first-xsmall: -1;
-    --last-xsmall: 1;
-    --unset-xsmall: unset;
-    --relative-xsmall: relative;
-  }
-}
 
 /* --- threshold-* responsive utilities (from the global style) ------------ */
 body {
   container-name: threshold-large threshold-medium threshold-small;
   container-type: inline-size;
+}
+
+/* Base grid for u-grid-above / u-grid-below. The utility itself provides the grid,
+   gutters, and column direction — components only set the column count (and any gap
+   override) on the combo class, e.g.:
+     .why_list.u-grid-above { --_column-count---value: 3; }
+   The threshold @container rules below flip these to a vertical flex stack past the
+   breakpoint (u-grid-above collapses below it, u-grid-below collapses above it). */
+.u-grid-above,
+.u-grid-below {
+  display: grid;
+  flex-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-template-rows: auto;
+  grid-template-columns: repeat(var(--_column-count---value), minmax(0, 1fr));
+  grid-column-gap: var(--site--gutter);
+  grid-row-gap: var(--site--gutter);
 }
 @container threshold-large (width >= 62em) {
   .u-order-unset-above {

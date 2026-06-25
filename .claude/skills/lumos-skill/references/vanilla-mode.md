@@ -41,10 +41,8 @@ Two equally valid ways to place component code:
     <!-- Sections go here. Apply a theme class to each section. -->
     <section class="hero_wrap u-section u-theme-light">
       <style>
-        .hero_layout {
-          display: var(--flex-medium, grid);
-          flex-direction: column;
-          grid-template-columns: repeat(12, minmax(0, 1fr));
+        .hero_layout.u-grid-above {
+          --_column-count---value: 2;
         }
         .hero_title {
           margin-bottom: var(--_text-style---margin-bottom);
@@ -54,7 +52,7 @@ Two equally valid ways to place component code:
         }
       </style>
       <div class="hero_contain u-container">
-        <div class="hero_layout">
+        <div class="hero_layout u-grid-above">
           <div class="hero_content u-margin-trim">
             <h1 class="hero_title u-text-style-h1">Heading</h1>
             <p class="hero_text u-text-style-main">Body copy.</p>
@@ -75,7 +73,7 @@ These Webflow-only workarounds are **dropped** — they only exist to satisfy th
 - **No empty-div `padding: 0`.** Webflow injects default padding into empty elements; the browser doesn't. Omit the fix unless you actually want padding.
 - **No `.w-*` classes.** Anything keyed to `.w-richtext`, `.w-dyn-item`, `.w-condition-invisible`, `.wf-design-mode`, etc. is Webflow runtime only and has been stripped from the foundation.
 
-Everything else is identical: class naming, fluid `rem`/`ch`/`em` sizing, no `@media`, the `--_responsive---*` keyword system, the `data-trigger`/`data-state` technique, scalable visual compositions, and the accessibility requirements.
+Everything else is identical: class naming, fluid `rem`/`ch`/`em` sizing, no `@media`, the `threshold-*` responsive system (`u-grid-above`/`u-grid-below`, `u-order-unset-*`, `u-all-unset-*`, and named `@container threshold-*` queries), the `data-trigger`/`data-state` technique, scalable visual compositions, and the accessibility requirements.
 
 ## Customizing tokens
 
@@ -93,8 +91,8 @@ The foundation is assembled from three layers with different provenance:
 
 1. **Reset + global + state-manager** — taken from a real Lumos global style. Faithful; edit rarely.
 2. **Design tokens** — reconstructed defaults chosen to look reasonable, not to match any specific brand. Expect to customize them.
-3. **Utilities + responsive system** — reconstructed to satisfy the contracts the skill emits (`u-section`, `u-container`, `u-text-style-*`, `--flex-medium`, `--_responsive---*`, etc.).
+3. **Utilities + responsive system** — reconstructed to satisfy the contracts the skill emits (`u-section`, `u-container`, `u-text-style-*`, the `threshold-*` grid/order utilities, etc.).
 
 For 1:1 parity with a specific Webflow project, replace layers 2 and 3 with that project's exported **Variables** (`:root` custom properties) and **utility-class CSS**. Because the variable names match, this is a drop-in swap — paste them over sections 2 and 3 and component output is unaffected.
 
-The `--_responsive---*` breakpoints in the reconstruction are large `50em+` / medium `35–50em` / small `20–35em` / xsmall `<20em`. The `threshold-*` utilities (`u-grid-above/below`, `u-order-unset-*`, `u-all-unset-*`) use the global style's own `62 / 48 / 30em` and are scoped to the `body` container.
+Responsive behavior runs entirely through the `threshold-*` system: the utilities (`u-grid-above`/`u-grid-below`, `u-order-unset-*`, `u-all-unset-*`) plus named `@container threshold-large|medium|small` queries, at the global style's own `62 / 48 / 30em` breakpoints, scoped to the `body` container. (The older `--_responsive---*` / `--flex-*` keyword-variable system has been removed from the foundation.)

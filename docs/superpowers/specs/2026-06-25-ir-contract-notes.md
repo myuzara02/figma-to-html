@@ -67,3 +67,26 @@ yang menyusun IR diperkaya WAJIB memperhatikan:
    `bgColor`, dan flag review di atas.
 5. **Multi-text-run collapse:** satu node text dengan beberapa gaya/weight per-span → `StyleFacts`/`StyleInfo`
    memodelkan SATU gaya per node. Batas data-loss yang diketahui; translator jangan asумsikan per-node = per-run uniform.
+
+## Catatan kontrak untuk Plan #5 (agent translator + linter) — dari final review Plan #4
+
+Merger (`merge.ts` → `mergeDesign`) sudah jadi & merged. Output = pohon `EnrichedNode`
+(role, text, style, asset, layout). Translator + linter (Plan #5) WAJIB menerapkan KEBIJAKAN
+berikut (sengaja TIDAK di-patch di branch merger — biar merge atomic):
+
+1. **Gap-suppression:** `resolveLayout` memanggil `snapSpacing` walau gap inferred = 0 → bisa keluar
+   token gap palsu (mis. `space--3 residual -16`) untuk container 1-anak/stack. Translator harus
+   **abaikan gap** kalau `children.length < 2` ATAU `|gap.residualPx| >= px-stop-terdekat`.
+2. **Route by confidence band, BUKAN `source`.** Leaf & container 1-anak sama-sama `confidence:1` dan
+   `source:"autolayout"` (mislabel — leaf bukan autolayout). Pakai band `[0.3–0.9]` untuk routing
+   review/vision; `1.0` = "trivial tak ambigu", BUKAN terverifikasi. (Opsional: rename leaf `source`
+   jadi `"none"`.)
+3. **Threshold gates (sinyal mentah sudah ada di `StyleInfo`):**
+   - `colorDistance`/`bgColorDistance` > toleransi → `colorNeedsReview`, jangan diam-diam cat ke var terdekat.
+   - `|textStyleResidualPx|` > toleransi → emit size override eksplisit (jebakan "heading 100px ke-render 64px";
+     fixture merge memang kena ini: 100→`u-text-style-h1`(64) residual +36).
+   - Definisikan threshold SEKALI, dipakai bersama translator + linter.
+4. **Asset expiry:** `AssetRef.url` = URL Figma live (~7 hari), belum ada flag placeholder. Tahap
+   konsumsi aset harus download/snapshot + flag placeholder.
+5. **Semantic role pass-2:** `detectRole` struktural saja → tambah refinement `container→button` /
+   `text→link` / `image→icon` pakai sinyal DC (interaksi/href, bentuk anak) yang belum di-plumb (work item nyata).

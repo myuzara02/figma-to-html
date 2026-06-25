@@ -26,4 +26,16 @@ describe("parseTailwind — typography & color", () => {
     expect(f.textAlign).toBe("center");
     expect(f.color).toBe("black");
   });
+
+  it("reads pixel line-height into lineHeightPx (not lineHeight)", () => {
+    const f = parseTailwind("leading-[24px]");
+    expect(f.lineHeightPx).toBe(24);
+    expect(f.lineHeight).toBeUndefined();
+  });
+
+  it("still reads unitless line-height into lineHeight", () => {
+    const f = parseTailwind("leading-[1.5]");
+    expect(f.lineHeight).toBe(1.5);
+    expect(f.lineHeightPx).toBeUndefined();
+  });
 });

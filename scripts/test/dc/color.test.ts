@@ -21,6 +21,14 @@ describe("parseColor", () => {
   it("returns null for unrecognized input", () => {
     expect(parseColor("chartreuse-ish")).toBeNull();
   });
+
+  it("parses 8-digit hex with alpha", () => {
+    expect(parseColor("#ffcc0080")).toEqual({ r: 255, g: 204, b: 0, a: 128 / 255 });
+  });
+
+  it("is case-insensitive for hex", () => {
+    expect(parseColor("#FFF")).toEqual({ r: 255, g: 255, b: 255, a: 1 });
+  });
 });
 
 const palette: ThemePalette = [

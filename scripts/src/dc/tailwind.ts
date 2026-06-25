@@ -14,6 +14,7 @@ export interface StyleFacts {
   fontWeight?: string;
   fontSizePx?: number;
   lineHeight?: number;
+  lineHeightPx?: number;
   letterSpacingPx?: number;
   textAlign?: "left" | "center" | "right";
   color?: string;
@@ -52,6 +53,9 @@ export function parseTailwind(className: string): StyleFacts {
 
     const size = tok.match(/^text-\[(\d+(?:\.\d+)?)px\]$/);
     if (size) { facts.fontSizePx = Number(size[1]); continue; }
+
+    const leadingPx = tok.match(/^leading-\[(\d+(?:\.\d+)?)px\]$/);
+    if (leadingPx) { facts.lineHeightPx = Number(leadingPx[1]); continue; }
 
     const leading = tok.match(/^leading-\[(\d+(?:\.\d+)?)\]$/);
     if (leading) { facts.lineHeight = Number(leading[1]); continue; }

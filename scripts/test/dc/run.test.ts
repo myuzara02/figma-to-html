@@ -13,7 +13,7 @@ const XML = `
 const DC = `const imgVector6 = "https://www.figma.com/api/mcp/asset/fdc19b8b";
 export default function Frame39674() {
   return (
-    <div className="flex flex-col gap-[64px] items-center justify-center" data-node-id="4388:3414">
+    <div className="flex flex-col gap-[80px] items-center justify-center" data-node-id="4388:3414">
       <div className="h-0 w-full" data-node-id="4388:3415">
         <div className="absolute"><img alt="" className="size-full" src={imgVector6} /></div>
       </div>
@@ -32,7 +32,7 @@ describe("runMerge (end-to-end with default scales)", () => {
     expect(root.id).toBe("4388:3414");
     expect(root.role).toBe("container");
     expect(root.layout.layout).toBe("column");
-    expect(root.layout.gap).toEqual({ token: "space--8", residualPx: 0 });
+    expect(root.layout.gap).toEqual({ token: "space--8", residualPx: 16 });
   });
 
   it("enriches the heading with a display tier and the faded label with preserved alpha", () => {

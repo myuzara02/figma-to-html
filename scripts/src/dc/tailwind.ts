@@ -18,6 +18,7 @@ export interface StyleFacts {
   letterSpacingPx?: number;
   textAlign?: "left" | "center" | "right";
   color?: string;
+  bgColor?: string;
 }
 
 /** Parse a Figma `get_design_context` className into raw style facts. Tolerant: unknown tokens are ignored. */
@@ -71,6 +72,11 @@ export function parseTailwind(className: string): StyleFacts {
     if (colorBracket) { facts.color = colorBracket[1]; continue; }
     if (tok === "text-white") { facts.color = "white"; continue; }
     if (tok === "text-black") { facts.color = "black"; continue; }
+
+    const bgBracket = tok.match(/^bg-\[(.+)\]$/);
+    if (bgBracket) { facts.bgColor = bgBracket[1]; continue; }
+    if (tok === "bg-white") { facts.bgColor = "white"; continue; }
+    if (tok === "bg-black") { facts.bgColor = "black"; continue; }
 
     // unknown token → ignore
   }

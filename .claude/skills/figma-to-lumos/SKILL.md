@@ -45,9 +45,13 @@ layout). You only do the **translation** — never invent text, color, or number
    (If `tsx` is unavailable, run via `node --experimental-strip-types src/dc/cli.ts ...`.)
 4. **Translate the IR → Lumos markup**, walking the tree (see Mapping + Gates below). Use
    `lumos-skill` conventions for every class, structure, and CSS rule.
-5. **Lint:** run `lintLumos(output)` (import from `src/dc/lint`) on your generated HTML. Fix
-   every issue (no `px`, no hex, no inline `style=`, component class ≤ 3 underscores) and re-lint
-   until clean.
+5. **Lint (two-tier):** run `lintLumos(output)` (import from `src/dc/lint`). Each issue has a
+   `severity`:
+   - **`error`** — a Lumos token exists for this value (the issue's `suggestion` names it). **Fix
+     every `error`** and re-lint until none remain.
+   - **`flag`** — no token is close (off-palette brand color, decorative blur/shadow/gradient, a
+     one-off rem). These are **allowed**; keep them, and **list every `flag` in the delivery
+     report** so the dev knows what was hand-written and why (cross-check the inline comment).
 6. **Verify** — two passes:
    - **Structural:** run `verifyIR(tree)` (import from `src/dc/verify`) on the enriched IR → a
      report of flagged nodes (low layout confidence, high gap/type residual, far color, empty text,
@@ -69,7 +73,8 @@ layout). You only do the **translation** — never invent text, color, or number
    named by section). `save-cli` restructures it so HTML and CSS are clearly separated **within the one
    file**: the `<section>` markup first under a `<!-- HTML -->` comment (no inline `<style>`), then the
    full `<style>` block at the bottom under a `<!-- STYLE -->` comment. Show it to the dev, say where it's
-   cached, and list the remaining `verifyIR` flags so they know what to double-check.
+   cached, and list both the remaining `verifyIR` flags and the linter `flag` issues (raw values that have no
+   token), so they know exactly what to double-check.
    (Webflow: paste the whole thing into an Embed. Standalone: load `lumos-foundation.css` first.)
 
 ## Mapping (EnrichedNode → Lumos)
@@ -123,6 +128,17 @@ Each node has: `role`, `text`, `style`, `asset`, `layout`, `children`.
 - **Gap-suppression:** emit no gap on containers with `< 2` children (a snapped gap there is spurious).
 
 ## Notes
+
+## Hybrid rule: Lumos-first → CSS-fallback → token-always
+
+1. Structure, spacing, type, theme → Lumos classes first.
+2. What Lumos can't express (gradients, glows, masks, absolute-positioned decoration, corner
+   brackets, off-palette brand colors) → plain CSS in the component `<style>` block.
+3. Inside that CSS, still use Lumos tokens wherever one exists (`var(--_spacing---*)`,
+   `var(--radius--*)`, theme vars). Only genuinely token-less values are raw.
+4. **Every scoped block with a raw value carries a one-line comment saying why there is no
+   token**, e.g. `/* mint brand headline — no theme var → scoped (FLAG) */`.
+5. `rem` is the escape-hatch unit for one-off geometry (bezel radius, aspect sizing, offsets).
 
 - Output is **Webflow mode**: class names + a per-component `<style>` block only for what utilities
   can't cover (gap, padding, column count, custom colors). **Never** redefine `u-*` utilities or `:root`.

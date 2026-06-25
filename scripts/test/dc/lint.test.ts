@@ -84,4 +84,10 @@ describe("lintLumos — color two-tier", () => {
     const issues = lintLumos(`<style>.a{color:color-mix(in hsl, var(--_theme---text) 30%, transparent)}</style>`);
     expect(issues.filter((i) => i.rule === "no-hex" || i.rule === "raw-color")).toEqual([]);
   });
+  // `border` shorthand carries a color literal — the load-bearing reason colorIssue
+  // gates fill props with prop.startsWith("border") (not just an enumerated set).
+  it("errors on a neutral color inside the border shorthand", () => {
+    const issues = lintLumos(`<style>.a{border:1px solid #111111}</style>`);
+    expect(issues).toContainEqual({ rule: "no-hex", match: "#111111", severity: "error", suggestion: "use var(--_theme---text)" });
+  });
 });

@@ -32,4 +32,7 @@ describe("boundingBox", () => {
       { x: 50, y: 5, w: 10, h: 40 },
     ])).toEqual({ x: 10, y: 5, w: 50, h: 40 });
   });
+  it("throws on empty input", () => {
+    expect(() => boundingBox([])).toThrow();
+  });
 });

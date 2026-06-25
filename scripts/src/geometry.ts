@@ -27,6 +27,7 @@ export function median(values: number[]): number {
 
 /** Axis-aligned bounding box of a non-empty set of rects. */
 export function boundingBox(rects: Rect[]): Rect {
+  if (rects.length === 0) throw new Error("boundingBox requires at least one rect");
   const x = Math.min(...rects.map((r) => r.x));
   const y = Math.min(...rects.map((r) => r.y));
   const right = Math.max(...rects.map((r) => r.x + r.w));

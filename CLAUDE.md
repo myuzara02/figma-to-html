@@ -17,8 +17,11 @@ Guidance for Claude (and any AI assistant) working in this repository.
 - **Never mix code with notes.** Notes live in `notes/`; code never goes there.
 
 ## Stack
-- Usually **GSAP / ScrollTrigger** and **Swiper**, but stay flexible to each dev's choice.
-- This project's stack is currently **undecided** — confirm before assuming a library.
+- **Layout/CSS:** **Lumos Framework** (by Timothy Ricks) — utility (`u-`) + component classes,
+  fluid/breakpointless sizing, no media queries. Works in Webflow OR vanilla HTML/CSS/JS.
+  - Use the repo skill `lumos-skill` (`.claude/skills/lumos-skill/`) for conventions.
+  - Vanilla project: copy `assets/lumos-foundation.css` from the skill and link it in `<head>` first.
+- **Animation/sliders:** usually **GSAP / ScrollTrigger** and **Swiper**, but stay flexible to each dev's choice.
 
 ## Documentation philosophy
 - Record the **WHY**: decisions, pitfalls, current status.

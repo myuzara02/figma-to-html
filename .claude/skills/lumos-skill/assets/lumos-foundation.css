@@ -1,0 +1,1413 @@
+/* ==========================================================================
+   LUMOS FOUNDATION (vanilla)
+   --------------------------------------------------------------------------
+   Drop this file into a from-scratch HTML/CSS/JS project and link it ONCE in
+   <head>, before any component <style> blocks.
+
+   Layers:
+     1. RESET + GLOBAL / STATE MANAGER  -> from the project's Lumos global style.
+     2. DESIGN TOKENS (:root)           -> REAL export from the Webflow project
+                                           (authoritative). Theme classes below
+                                           are reconstructed from the project's
+                                           own --swatch--* palette.
+     3. UTILITIES + RESPONSIVE SYSTEM   -> reconstructed to match the skill's
+                                           contracts; the type scale references
+                                           the real --_typography--- tokens.
+   ========================================================================== */
+
+/* ==========================================================================
+   1. RESET + GLOBAL + STATE MANAGER
+   Webflow-Designer-only rules removed; baseline resets that Webflow's base
+   normally provides (box-sizing, image sizing, button reset) are added so the
+   project behaves the same outside Webflow.
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: var(--_theme---background);
+}
+
+body {
+  margin: 0;
+  background-color: var(--_theme---background);
+  font-family: var(--_text-style---font-family);
+  color: var(--_theme---text);
+  font-size: var(--_text-style---font-size);
+  line-height: var(--_text-style---line-height);
+  font-weight: var(--_text-style---font-weight);
+  letter-spacing: var(--_text-style---letter-spacing);
+  text-transform: var(--_text-style---text-transform);
+  text-wrap: var(--_text-style---text-wrap);
+  -webkit-font-smoothing: antialiased;
+  --_column-count---value: 12;
+}
+
+button {
+  background-color: unset;
+  padding: unset;
+  border: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+}
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+video {
+  width: 100%;
+  object-fit: cover;
+  display: block;
+}
+svg {
+  max-width: 100%;
+}
+
+@media (prefers-color-scheme: light) {
+  option {
+    color: black;
+  }
+}
+
+img::selection {
+  background: transparent;
+}
+
+a:not([class]) {
+  text-decoration: underline;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+label {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-wrap: inherit;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+select:has(option[value=""]:checked) {
+  color: color-mix(in lab, currentcolor 60%, transparent);
+}
+
+/* Selection Color */
+::selection {
+  background-color: var(--_theme---selection--background);
+  color: var(--_theme---selection--text);
+}
+
+/* Margin Trim */
+:is(.u-margin-trim, .u-rich-text)
+  > :not(
+    :not(.u-cover-absolute, .u-ignore-trim)
+      ~ :not(.u-cover-absolute, .u-ignore-trim)
+  ),
+:is(.u-margin-trim, .u-rich-text)
+  > :not(
+    :not(.u-cover-absolute, .u-ignore-trim)
+      ~ :not(.u-cover-absolute, .u-ignore-trim)
+  ).u-display-contents
+  > :first-child {
+  margin-top: 0;
+}
+:is(.u-margin-trim, .u-rich-text)
+  > :not(:has(~ :not(.u-cover-absolute, .u-ignore-trim))),
+:is(.u-margin-trim, .u-rich-text)
+  > :not(:has(~ :not(.u-cover-absolute, .u-ignore-trim))).u-display-contents
+  > :last-child {
+  margin-bottom: 0;
+}
+
+/* Line Height Trim (opt-in) */
+.u-text-trim-on::before {
+  content: "";
+  display: table;
+  margin-bottom: calc(-0.5lh + var(--_text-style---trim-top));
+}
+.u-text-trim-on::after {
+  content: "";
+  display: table;
+  margin-bottom: calc(-0.5lh + var(--_text-style---trim-bottom));
+}
+
+/* Line Clamp */
+[class*="u-line-clamp"] {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.u-line-clamp-2 {
+  -webkit-line-clamp: 2;
+}
+.u-line-clamp-3 {
+  -webkit-line-clamp: 3;
+}
+.u-line-clamp-4 {
+  -webkit-line-clamp: 4;
+}
+
+/* Text Max Width passthrough */
+.u-heading > *,
+.u-text > *,
+.c-heading > *,
+.c-paragraph > *,
+.u-child-contain > * {
+  width: 100%;
+  max-width: inherit !important;
+  margin-inline: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Hide */
+.u-hide-if-empty:empty,
+.u-embed-js,
+.u-embed-css {
+  display: none !important;
+}
+
+/* Focus State */
+a,
+button,
+:where([tabindex]),
+[data-outline] {
+  outline-offset: var(--focus--offset-outer);
+}
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible,
+label:has(input:focus-visible) [data-outline] {
+  outline-color: var(--_theme---text);
+  outline-width: var(--focus--width);
+  outline-style: solid;
+}
+
+/* Disabled */
+[data-button]:has(button:disabled) {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Number Attributes: [data-number="N"] -> --number: N (0–100) */
+[data-number="-1"] {
+  --number: initial;
+}
+[data-number="0"] {
+  --number: 0;
+}
+[data-number="1"] {
+  --number: 1;
+}
+[data-number="2"] {
+  --number: 2;
+}
+[data-number="3"] {
+  --number: 3;
+}
+[data-number="4"] {
+  --number: 4;
+}
+[data-number="5"] {
+  --number: 5;
+}
+[data-number="6"] {
+  --number: 6;
+}
+[data-number="7"] {
+  --number: 7;
+}
+[data-number="8"] {
+  --number: 8;
+}
+[data-number="9"] {
+  --number: 9;
+}
+[data-number="10"] {
+  --number: 10;
+}
+/* 11–100 follow the same pattern; add as needed. */
+
+/* State Manager — flips CSS variables so children react without descendant
+   selectors. Defaults live in :root (section 2). The [data-state] reset below
+   re-establishes state defaults at each boundary so a flipped ancestor doesn't
+   leak into nested stateful elements. */
+[data-state] {
+  --_state---true: 1;
+  --_state---false: 0;
+}
+.is-active,
+[data-state~="checked"]:is(:checked, :has(:checked)),
+[data-state~="current"]:is(
+  .w--current,
+  .is-current,
+  :has(.w--current, .is-current)
+),
+[data-state~="open"]:is(.w--open, .is-open, :has(.w--open, .is-open)),
+[data-state~="pressed"]:is([aria-pressed="true"], :has([aria-pressed="true"])),
+[data-state~="expanded"]:is(
+  [aria-expanded="true"],
+  :has([aria-expanded="true"])
+),
+[data-state~="external"]:is([target="_blank"], :has([target="_blank"])) {
+  --_state---true: 0;
+  --_state---false: 1;
+}
+[data-trigger~="focus"]:is(:focus-visible, :has(:focus-visible)),
+[data-trigger~="group"]:has(
+    [data-trigger~="focus-other"]:focus-visible,
+    [data-trigger~="focus-other"] :focus-visible
+  )
+  [data-trigger~="focus-other"]:not(:focus-visible, :has(:focus-visible)) {
+  --_trigger---on: 0;
+  --_trigger---off: 1;
+}
+@media (hover: hover) {
+  [data-trigger~="hover"]:hover,
+  [data-trigger~="group"]:has([data-trigger~="hover-other"]:hover)
+    [data-trigger~="hover-other"]:not(:hover) {
+    --_trigger---on: 0;
+    --_trigger---off: 1;
+  }
+  [data-trigger~="hover-other"]:hover {
+    --_trigger---on: 1 !important;
+    --_trigger---off: 0 !important;
+  }
+}
+@media (hover: none) {
+  [data-trigger~="mobile"] {
+    --_trigger---on: 0;
+    --_trigger---off: 1;
+  }
+}
+
+/* ==========================================================================
+   2. DESIGN TOKENS  —  REAL :root export from the Webflow project (verbatim).
+   Edit brand values via the --swatch--* palette near the bottom.
+   ========================================================================== */
+
+:root {
+  --_theme---background: var(--swatch--light-100);
+  --_text-style---font-family: var(--_typography---font--primary-family);
+  --_theme---text: var(--swatch--dark-900);
+  --_text-style---font-size: var(--_typography---font-size--text-main);
+  --_text-style---line-height: var(--_typography---line-height--5);
+  --_text-style---font-weight: var(--_typography---font--primary-regular);
+  --_text-style---letter-spacing: var(--_typography---letter-spacing--normal);
+  --_text-style---text-wrap: pretty;
+  --_gap---size: var(--site--gutter);
+  --_column-count---value: 1;
+  --_text-style---margin-top: var(--_spacing---space--4);
+  --_text-style---margin-bottom: var(--_spacing---space--4);
+  --_spacing---space--6: clamp(
+    2 * 1rem,
+    (
+      (
+          2 -
+            (
+              (2.5 - 2) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        ((2.5 - 2) / (var(--site--viewport-max) - var(--site--viewport-min))) *
+        100vw
+    ),
+    2.5 * 1rem
+  );
+  --_text-style---trim-top: var(--_typography---font--primary-trim-top);
+  --_text-style---trim-bottom: var(--_typography---font--primary-trim-bottom);
+  --_spacing---space--7: clamp(
+    2.25 * 1rem,
+    (
+      (
+          2.25 -
+            (
+              (3 - 2.25) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        ((3 - 2.25) / (var(--site--viewport-max) - var(--site--viewport-min))) *
+        100vw
+    ),
+    3 * 1rem
+  );
+  --_typography---line-height--normal: 1;
+  --_typography---line-height--1: 1.1;
+  --_typography---line-height--3: 1.3;
+  --_typography---line-height--5: 1.5;
+  --_typography---letter-spacing--tight-3: -0.03em;
+  --_typography---letter-spacing--normal: 0em;
+  --max-width--main: calc(var(--site--viewport-max) * 1rem);
+  --site--margin: clamp(
+    1.25 * 1rem,
+    (
+      (
+          1.25 -
+            (
+              (5 - 1.25) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        ((5 - 1.25) / (var(--site--viewport-max) - var(--site--viewport-min))) *
+        100vw
+    ),
+    5 * 1rem
+  );
+  --max-width--small: 50rem;
+  --max-width--full: 100%;
+  --_spacing---section-space--none: 0px;
+  --_spacing---section-space--small: clamp(
+    3 * 1rem,
+    (
+      (
+          3 -
+            (
+              (5 - 3) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        ((5 - 3) / (var(--site--viewport-max) - var(--site--viewport-min))) *
+        100vw
+    ),
+    5 * 1rem
+  );
+  --_spacing---section-space--main: clamp(
+    4 * 1rem,
+    (
+      (
+          4 -
+            (
+              (7.5 - 4) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        ((7.5 - 4) / (var(--site--viewport-max) - var(--site--viewport-min))) *
+        100vw
+    ),
+    7.5 * 1rem
+  );
+  --_spacing---section-space--large: clamp(
+    5.5 * 1rem,
+    (
+      (
+          5.5 -
+            (
+              (10 - 5.5) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        ((10 - 5.5) / (var(--site--viewport-max) - var(--site--viewport-min))) *
+        100vw
+    ),
+    10 * 1rem
+  );
+  --_spacing---section-space--page-top: clamp(
+    7 * 1rem,
+    (
+      (
+          7 -
+            (
+              (14 - 7) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        ((14 - 7) / (var(--site--viewport-max) - var(--site--viewport-min))) *
+        100vw
+    ),
+    14 * 1rem
+  );
+  --_theme---heading-accent: var(--swatch--brand-600);
+  --_spacing---space--2: clamp(
+    0.75 * 1rem,
+    (
+      (
+          0.75 -
+            (
+              (0.75 - 0.75) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        (
+          (0.75 - 0.75) /
+            (var(--site--viewport-max) - var(--site--viewport-min))
+        ) *
+        100vw
+    ),
+    0.75 * 1rem
+  );
+  --site--gutter: clamp(
+    1.25 * 1rem,
+    (
+      (
+          1.25 -
+            (
+              (1.5 - 1.25) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        (
+          (1.5 - 1.25) / (var(--site--viewport-max) - var(--site--viewport-min))
+        ) *
+        100vw
+    ),
+    1.5 * 1rem
+  );
+  --_theme---background-2: var(--swatch--light-200);
+  --_spacing---space--1: clamp(
+    0.5 * 1rem,
+    (
+      (
+          0.5 -
+            (
+              (0.5 - 0.5) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        (
+          (0.5 - 0.5) / (var(--site--viewport-max) - var(--site--viewport-min))
+        ) *
+        100vw
+    ),
+    0.5 * 1rem
+  );
+  --_spacing---space--3: clamp(
+    0.875 * 1rem,
+    (
+      (
+          0.875 -
+            (
+              (1 - 0.875) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        (
+          (1 - 0.875) / (var(--site--viewport-max) - var(--site--viewport-min))
+        ) *
+        100vw
+    ),
+    1 * 1rem
+  );
+  --_spacing---space--4: clamp(
+    1.25 * 1rem,
+    (
+      (
+          1.25 -
+            (
+              (1.5 - 1.25) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        (
+          (1.5 - 1.25) / (var(--site--viewport-max) - var(--site--viewport-min))
+        ) *
+        100vw
+    ),
+    1.5 * 1rem
+  );
+  --_spacing---space--5: clamp(
+    1.75 * 1rem,
+    (
+      (
+          1.75 -
+            (
+              (2 - 1.75) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        ((2 - 1.75) / (var(--site--viewport-max) - var(--site--viewport-min))) *
+        100vw
+    ),
+    2 * 1rem
+  );
+  --_spacing---space--8: clamp(
+    2.5 * 1rem,
+    (
+      (
+          2.5 -
+            (
+              (4 - 2.5) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        ((4 - 2.5) / (var(--site--viewport-max) - var(--site--viewport-min))) *
+        100vw
+    ),
+    4 * 1rem
+  );
+  --_typography---font--primary-regular: 400;
+  --_typography---font--primary-medium: 500;
+  --_typography---font--primary-bold: 700;
+  --radius--small: 0.5rem;
+  --radius--main: 1rem;
+  --radius--round: 100vw;
+  --border-width--main: 0.094rem;
+  --_theme---border: var(--swatch--dark-900-o20);
+  --swatch--transparent: transparent;
+  --_trigger---on: 1;
+  --_trigger---off: 0;
+  --focus--offset-inner: -0.125rem;
+  --_button-style---border: var(--_theme---button-primary--border);
+  --_button-style---background: var(--_theme---button-primary--background);
+  --_button-style---text: var(--_theme---button-primary--text);
+  --_button-style---border-hover: var(--_theme---button-primary--border-hover);
+  --_button-style---background-hover: var(
+    --_theme---button-primary--background-hover
+  );
+  --_button-style---text-hover: var(--_theme---button-primary--text-hover);
+  --_state---true: 1;
+  --_state---false: 0;
+  --_theme---text-link-primary--border-hover: var(--_theme---text);
+  --_theme---text-link-primary--text-hover: var(
+    --_theme---text-link-primary--text
+  );
+  --nav--max-width-outer: var(--max-width--main);
+  --nav--spacing-outer-horizontal: var(--site--margin);
+  --nav--radius: var(--radius--small);
+  --_theme---nav--background: var(--_theme---background);
+  --nav--max-width-inner: var(--max-width--main);
+  --nav--height-total: calc(
+    var(--nav--height) + var(--nav--spacing-outer-vertical)
+  );
+  --nav--spacing-outer-vertical: var(--site--margin);
+  --swatch--dark-900: #1f1d1e;
+  --nav--height: 4rem;
+  --nav--hamburger-thickness: var(--border-width--main);
+  --nav--spacing-inner-horizontal: var(--_spacing---space--5);
+  --nav--hamburger-gap: var(--_spacing---space--2);
+  --focus--width: 0.125rem;
+  --swatch--light-100: white;
+  --swatch--brand-text: var(--swatch--dark-900);
+  --_typography---font--primary-semibold: 600;
+  --_typography---font--primary-light: 300;
+  --_theme---text-link-secondary--border-hover: white;
+  --_typography---line-height--2: 1.2;
+  --_typography---line-height--4: 1.4;
+  --_typography---letter-spacing--tight-4: -0.04em;
+  --_typography---letter-spacing--tight-5: -0.05em;
+  --_typography---letter-spacing--tight-1: -0.01em;
+  --_typography---letter-spacing--tight-2: -0.02em;
+  --_typography---letter-spacing--loose-1: 0.01em;
+  --_typography---letter-spacing--loose-2: 0.02em;
+  --_theme---text-link-primary--border: var(--_theme---border);
+  --_theme---text-link-primary--text: var(--_theme---text);
+  --_theme---text-link-secondary--border: white;
+  --_theme---text-link-secondary--text: white;
+  --_theme---text-link-secondary--text-hover: white;
+  --_text-style---text-transform: var(--_typography---text-transform--none);
+  --site--viewport-max: 90;
+  --site--viewport-min: 20;
+  --_theme---selection--background: var(--swatch--brand-300);
+  --_theme---selection--text: var(--swatch--brand-text);
+  --site--column-count: 12;
+  --focus--offset-outer: 0.1875rem;
+  --swatch--light-100-o20: color-mix(
+    in srgb,
+    var(--swatch--light-100) 20%,
+    transparent
+  );
+  --swatch--light-200: #ebebeb;
+  --swatch--dark-800: #2f2b2d;
+  --swatch--dark-900-o20: color-mix(
+    in srgb,
+    var(--swatch--dark-900) 20%,
+    transparent
+  );
+  --swatch--brand-100: color-mix(in srgb, var(--swatch--brand-500), white 80%);
+  --swatch--brand-200: color-mix(in srgb, var(--swatch--brand-500), white 60%);
+  --swatch--brand-400: color-mix(in srgb, var(--swatch--brand-500), white 20%);
+  --swatch--brand-300: color-mix(in srgb, var(--swatch--brand-500), white 40%);
+  --swatch--brand-500: #c6fb50;
+  --swatch--brand-600: color-mix(in srgb, var(--swatch--brand-500), black 20%);
+  --swatch--brand-700: color-mix(in srgb, var(--swatch--brand-500), black 40%);
+  --swatch--brand-800: color-mix(in srgb, var(--swatch--brand-500), black 60%);
+  --swatch--brand-900: color-mix(in srgb, var(--swatch--brand-500), black 80%);
+  --_alignment---direction: start;
+  --swatch--brand-text-o20: color-mix(
+    in srgb,
+    var(--swatch--brand-text) 20%,
+    transparent
+  );
+  --_theme---button-primary--background: var(--swatch--brand-500);
+  --_theme---button-primary--border: var(--_theme---button-primary--background);
+  --_theme---button-primary--text: var(--swatch--brand-text);
+  --_theme---button-primary--background-hover: var(--_theme---text);
+  --_theme---button-primary--border-hover: var(
+    --_theme---button-primary--background-hover
+  );
+  --_theme---button-primary--text-hover: var(--_theme---background);
+  --_theme---button-secondary--background: var(--swatch--transparent);
+  --_theme---button-secondary--border: var(--_theme---border);
+  --_theme---button-secondary--text: var(--_theme---text);
+  --_theme---button-secondary--background-hover: var(--_theme---text);
+  --_theme---button-secondary--border-hover: var(
+    --_theme---button-secondary--background-hover
+  );
+  --_theme---button-secondary--text-hover: var(--_theme---background);
+  --_theme---button-tertiary--background: white;
+  --_theme---button-tertiary--border: white;
+  --_theme---button-tertiary--text: white;
+  --_theme---button-tertiary--background-hover: white;
+  --_theme---button-tertiary--border-hover: white;
+  --_theme---button-tertiary--text-hover: white;
+  --_theme---button-quaternary--background: white;
+  --_theme---button-quaternary--border: white;
+  --_theme---button-quaternary--text: white;
+  --_theme---button-quaternary--background-hover: white;
+  --_theme---button-quaternary--border-hover: white;
+  --_theme---button-quaternary--text-hover: white;
+  --nav--banner-height: 2.4rem;
+  --nav--menu-open-duration: var(--nav-duration, 0.4s);
+  --_typography---font--primary-family:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  --_typography---font--primary-trim-top: 0.33em;
+  --_typography---font--primary-trim-bottom: 0.38em;
+  --_typography---font--primary-extrabold: 800;
+  --_typography---font--primary-black: 900;
+  --nav--menu-close-duration: var(--nav-duration, 0.4s);
+  --nav--dropdown-open-duration: var(--nav-duration, 0.4s);
+  --nav--dropdown-close-duration: var(--nav-duration, 0.4s);
+  --_typography---font-size--text-tiny: clamp(
+    0.75 * 1rem,
+    (
+      (
+          0.75 -
+            (
+              (0.75 - 0.75) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        (
+          (0.75 - 0.75) /
+            (var(--site--viewport-max) - var(--site--viewport-min))
+        ) *
+        100vw
+    ),
+    0.75 * 1rem
+  );
+  --column-width--plus-gutter: calc(
+    var(--column-width--1) + var(--site--gutter)
+  );
+  --column-width--1: var(--site--column-width);
+  --column-width--2: calc(
+    var(--column-width--plus-gutter) * 2 - var(--site--gutter)
+  );
+  --column-width--3: calc(
+    var(--column-width--plus-gutter) * 3 - var(--site--gutter)
+  );
+  --column-width--4: calc(
+    var(--column-width--plus-gutter) * 4 - var(--site--gutter)
+  );
+  --column-width--5: calc(
+    var(--column-width--plus-gutter) * 5 - var(--site--gutter)
+  );
+  --column-width--6: calc(
+    var(--column-width--plus-gutter) * 6 - var(--site--gutter)
+  );
+  --column-width--7: calc(
+    var(--column-width--plus-gutter) * 7 - var(--site--gutter)
+  );
+  --column-width--8: calc(
+    var(--column-width--plus-gutter) * 8 - var(--site--gutter)
+  );
+  --column-width--9: calc(
+    var(--column-width--plus-gutter) * 9 - var(--site--gutter)
+  );
+  --column-width--10: calc(
+    var(--column-width--plus-gutter) * 10 - var(--site--gutter)
+  );
+  --column-width--11: calc(
+    var(--column-width--plus-gutter) * 11 - var(--site--gutter)
+  );
+  --column-width--12: calc(
+    var(--column-width--plus-gutter) * 12 - var(--site--gutter)
+  );
+  --column-margin--0: 0px;
+  --column-margin--1: calc(var(--column-width--plus-gutter) * 1);
+  --column-margin--2: calc(var(--column-width--plus-gutter) * 2);
+  --column-margin--3: calc(var(--column-width--plus-gutter) * 3);
+  --column-margin--4: calc(var(--column-width--plus-gutter) * 4);
+  --column-margin--5: calc(var(--column-width--plus-gutter) * 5);
+  --column-margin--6: calc(var(--column-width--plus-gutter) * 6);
+  --column-margin--7: calc(var(--column-width--plus-gutter) * 7);
+  --column-margin--8: calc(var(--column-width--plus-gutter) * 8);
+  --column-margin--9: calc(var(--column-width--plus-gutter) * 9);
+  --column-margin--10: calc(var(--column-width--plus-gutter) * 10);
+  --column-margin--11: calc(var(--column-width--plus-gutter) * 11);
+  --column-margin--12: calc(var(--column-width--plus-gutter) * 12);
+  --_typography---font-size--text-small: clamp(
+    0.875 * 1rem,
+    (
+      (
+          0.875 -
+            (
+              (0.875 - 0.875) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        (
+          (0.875 - 0.875) /
+            (var(--site--viewport-max) - var(--site--viewport-min))
+        ) *
+        100vw
+    ),
+    0.875 * 1rem
+  );
+  --_typography---font-size--text-main: clamp(
+    0.875 * 1rem,
+    (
+      (
+          0.875 -
+            (
+              (1 - 0.875) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        (
+          (1 - 0.875) / (var(--site--viewport-max) - var(--site--viewport-min))
+        ) *
+        100vw
+    ),
+    1 * 1rem
+  );
+  --_typography---font-size--text-medium: clamp(
+    1 * 1rem,
+    (
+      (
+          1 -
+            (
+              (1.125 - 1) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        (
+          (1.125 - 1) / (var(--site--viewport-max) - var(--site--viewport-min))
+        ) *
+        100vw
+    ),
+    1.125 * 1rem
+  );
+  --_typography---font-size--text-large: clamp(
+    1.125 * 1rem,
+    (
+      (
+          1.125 -
+            (
+              (1.25 - 1.125) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        (
+          (1.25 - 1.125) /
+            (var(--site--viewport-max) - var(--site--viewport-min))
+        ) *
+        100vw
+    ),
+    1.25 * 1rem
+  );
+  --_typography---font-size--h6: clamp(
+    1.125 * 1rem,
+    (
+      (
+          1.125 -
+            (
+              (1.5 - 1.125) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        (
+          (1.5 - 1.125) /
+            (var(--site--viewport-max) - var(--site--viewport-min))
+        ) *
+        100vw
+    ),
+    1.5 * 1rem
+  );
+  --_typography---font-size--h5: clamp(
+    1.375 * 1rem,
+    (
+      (
+          1.375 -
+            (
+              (2 - 1.375) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        (
+          (2 - 1.375) / (var(--site--viewport-max) - var(--site--viewport-min))
+        ) *
+        100vw
+    ),
+    2 * 1rem
+  );
+  --_typography---font-size--h4: clamp(
+    1.75 * 1rem,
+    (
+      (
+          1.75 -
+            (
+              (2.5 - 1.75) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        (
+          (2.5 - 1.75) / (var(--site--viewport-max) - var(--site--viewport-min))
+        ) *
+        100vw
+    ),
+    2.5 * 1rem
+  );
+  --_typography---font-size--h3: clamp(
+    2.25 * 1rem,
+    (
+      (
+          2.25 -
+            (
+              (3 - 2.25) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        ((3 - 2.25) / (var(--site--viewport-max) - var(--site--viewport-min))) *
+        100vw
+    ),
+    3 * 1rem
+  );
+  --_typography---font-size--h2: clamp(
+    2.5 * 1rem,
+    (
+      (
+          2.5 -
+            (
+              (4 - 2.5) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        ((4 - 2.5) / (var(--site--viewport-max) - var(--site--viewport-min))) *
+        100vw
+    ),
+    4 * 1rem
+  );
+  --_typography---font-size--h1: clamp(
+    3 * 1rem,
+    (
+      (
+          3 -
+            (
+              (5 - 3) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        ((5 - 3) / (var(--site--viewport-max) - var(--site--viewport-min))) *
+        100vw
+    ),
+    5 * 1rem
+  );
+  --_typography---font-size--display: clamp(
+    4 * 1rem,
+    (
+      (
+          4 -
+            (
+              (7 - 4) /
+                (var(--site--viewport-max) - var(--site--viewport-min)) *
+                var(--site--viewport-min)
+            )
+        ) *
+        1rem +
+        ((7 - 4) / (var(--site--viewport-max) - var(--site--viewport-min))) *
+        100vw
+    ),
+    7 * 1rem
+  );
+  --site--column-width: calc(
+    (
+        min(var(--max-width--main), 100vw - var(--site--margin) * 2) -
+          (var(--site--gutter) * (var(--site--column-count) - 1))
+      ) /
+      var(--site--column-count)
+  );
+  --_typography---text-transform--none: var(--text-transform, none);
+  --_typography---text-transform--uppercase: uppercase;
+  --_typography---text-transform--capitalize: capitalize;
+  --_typography---text-transform--lowercase: lowercase;
+
+  /* Full-bleed grid track lists (from the project global style). */
+  --grid-breakout: [full-start] minmax(0, 1fr) [content-start]
+    repeat(var(--site--column-count), minmax(0, var(--site--column-width)))
+    [content-end] minmax(0, 1fr) [full-end];
+  --grid-breakout-single: [full-start] minmax(0, 1fr) [content-start]
+    minmax(0, calc(100% - var(--site--margin) * 2)) [content-end] minmax(0, 1fr)
+    [full-end];
+
+  /* Aliases so skill-emitted code using --_theme---text-link--* resolves to the
+     project's primary text-link tokens (which theme classes can override). */
+  --_theme---text-link--border: var(--_theme---text-link-primary--border);
+  --_theme---text-link--text: var(--_theme---text-link-primary--text);
+  --_theme---text-link--border-hover: var(
+    --_theme---text-link-primary--border-hover
+  );
+  --_theme---text-link--text-hover: var(
+    --_theme---text-link-primary--text-hover
+  );
+}
+
+/* --------------------------------------------------------------------------
+   Theme classes — RECONSTRUCTED from the project's --swatch--* palette.
+   :root above is the light theme. These let a section/card recolor by setting
+   the --_theme---* group. Apply one per section (e.g. <section class="u-section
+   u-theme-dark">). Swap in your project's real theme classes for exact parity.
+   -------------------------------------------------------------------------- */
+.u-theme-light {
+  --_theme---background: var(--swatch--light-100);
+  --_theme---background-2: var(--swatch--light-200);
+  --_theme---text: var(--swatch--dark-900);
+  --_theme---border: var(--swatch--dark-900-o20);
+  --_theme---heading-accent: var(--swatch--brand-600);
+  --_theme---selection--background: var(--swatch--brand-300);
+  --_theme---selection--text: var(--swatch--brand-text);
+  --_theme---text-link-primary--border: var(--_theme---border);
+  --_theme---text-link-primary--text: var(--_theme---text);
+  --_theme---text-link-primary--border-hover: var(--_theme---text);
+  --_theme---text-link-primary--text-hover: var(
+    --_theme---text-link-primary--text
+  );
+  --_theme---button-primary--background: var(--swatch--brand-500);
+  --_theme---button-primary--border: var(--_theme---button-primary--background);
+  --_theme---button-primary--text: var(--swatch--brand-text);
+  --_theme---button-primary--background-hover: var(--_theme---text);
+  --_theme---button-primary--border-hover: var(
+    --_theme---button-primary--background-hover
+  );
+  --_theme---button-primary--text-hover: var(--_theme---background);
+  --_theme---button-secondary--background: var(--swatch--transparent);
+  --_theme---button-secondary--border: var(--_theme---border);
+  --_theme---button-secondary--text: var(--_theme---text);
+  --_theme---button-secondary--background-hover: var(--_theme---text);
+  --_theme---button-secondary--border-hover: var(
+    --_theme---button-secondary--background-hover
+  );
+  --_theme---button-secondary--text-hover: var(--_theme---background);
+}
+.u-theme-dark {
+  --_theme---background: var(--swatch--dark-900);
+  --_theme---background-2: var(--swatch--dark-800);
+  --_theme---text: var(--swatch--light-100);
+  --_theme---border: var(--swatch--light-100-o20);
+  --_theme---heading-accent: var(--swatch--brand-400);
+  --_theme---selection--background: var(--swatch--brand-500);
+  --_theme---selection--text: var(--swatch--brand-text);
+  --_theme---text-link-primary--border: var(--_theme---border);
+  --_theme---text-link-primary--text: var(--_theme---text);
+  --_theme---text-link-primary--border-hover: var(--_theme---text);
+  --_theme---text-link-primary--text-hover: var(
+    --_theme---text-link-primary--text
+  );
+  --_theme---button-primary--background: var(--swatch--brand-500);
+  --_theme---button-primary--border: var(--_theme---button-primary--background);
+  --_theme---button-primary--text: var(--swatch--brand-text);
+  --_theme---button-primary--background-hover: var(--_theme---text);
+  --_theme---button-primary--border-hover: var(
+    --_theme---button-primary--background-hover
+  );
+  --_theme---button-primary--text-hover: var(--_theme---background);
+  --_theme---button-secondary--background: var(--swatch--transparent);
+  --_theme---button-secondary--border: var(--_theme---border);
+  --_theme---button-secondary--text: var(--_theme---text);
+  --_theme---button-secondary--background-hover: var(--_theme---text);
+  --_theme---button-secondary--border-hover: var(
+    --_theme---button-secondary--background-hover
+  );
+  --_theme---button-secondary--text-hover: var(--_theme---background);
+}
+.u-theme-brand {
+  --_theme---background: var(--swatch--brand-500);
+  --_theme---background-2: var(--swatch--brand-400);
+  --_theme---text: var(--swatch--brand-text);
+  --_theme---border: var(--swatch--brand-text-o20);
+  --_theme---heading-accent: var(--swatch--dark-900);
+  --_theme---selection--background: var(--swatch--dark-900);
+  --_theme---selection--text: var(--swatch--brand-500);
+  --_theme---text-link-primary--border: var(--_theme---border);
+  --_theme---text-link-primary--text: var(--_theme---text);
+  --_theme---text-link-primary--border-hover: var(--_theme---text);
+  --_theme---text-link-primary--text-hover: var(
+    --_theme---text-link-primary--text
+  );
+  --_theme---button-primary--background: var(--_theme---text);
+  --_theme---button-primary--border: var(--_theme---button-primary--background);
+  --_theme---button-primary--text: var(--_theme---background);
+  --_theme---button-primary--background-hover: var(--swatch--dark-800);
+  --_theme---button-primary--border-hover: var(
+    --_theme---button-primary--background-hover
+  );
+  --_theme---button-primary--text-hover: var(--_theme---background);
+  --_theme---button-secondary--background: var(--swatch--transparent);
+  --_theme---button-secondary--border: var(--_theme---border);
+  --_theme---button-secondary--text: var(--_theme---text);
+  --_theme---button-secondary--background-hover: var(--_theme---text);
+  --_theme---button-secondary--border-hover: var(
+    --_theme---button-secondary--background-hover
+  );
+  --_theme---button-secondary--text-hover: var(--_theme---background);
+}
+
+/* ==========================================================================
+   3. UTILITIES + RESPONSIVE SYSTEM  (reconstructed to match skill contracts;
+   the type scale references the real --_typography--- tokens above)
+   ========================================================================== */
+
+/* --- Section & container ------------------------------------------------- */
+.u-section {
+  display: flex;
+  flex-flow: column;
+  background-color: var(--_theme---background);
+  color: var(--_theme---text);
+  padding-top: var(--_spacing---section-space--main);
+  padding-bottom: var(--_spacing---section-space--main);
+}
+.u-container {
+  max-width: var(--max-width--main);
+  width: calc(100% - var(--site--margin) * 2);
+  margin-inline: auto;
+  display: flex;
+  flex-flow: column;
+  container-type: inline-size;
+  gap: var(--_spacing---space--8);
+}
+
+/* --- Typography scale (references real tokens) --------------------------- */
+.u-text-style-display {
+  font-size: var(--_typography---font-size--display);
+  line-height: var(--_typography---line-height--normal);
+  font-weight: var(--_typography---font--primary-bold);
+  letter-spacing: var(--_typography---letter-spacing--tight-4);
+}
+.u-text-style-h1 {
+  font-size: var(--_typography---font-size--h1);
+  line-height: var(--_typography---line-height--1);
+  font-weight: var(--_typography---font--primary-bold);
+  letter-spacing: var(--_typography---letter-spacing--tight-3);
+}
+.u-text-style-h2 {
+  font-size: var(--_typography---font-size--h2);
+  line-height: var(--_typography---line-height--1);
+  font-weight: var(--_typography---font--primary-bold);
+  letter-spacing: var(--_typography---letter-spacing--tight-2);
+}
+.u-text-style-h3 {
+  font-size: var(--_typography---font-size--h3);
+  line-height: var(--_typography---line-height--2);
+  font-weight: var(--_typography---font--primary-semibold);
+  letter-spacing: var(--_typography---letter-spacing--tight-2);
+}
+.u-text-style-h4 {
+  font-size: var(--_typography---font-size--h4);
+  line-height: var(--_typography---line-height--2);
+  font-weight: var(--_typography---font--primary-semibold);
+  letter-spacing: var(--_typography---letter-spacing--tight-1);
+}
+.u-text-style-h5 {
+  font-size: var(--_typography---font-size--h5);
+  line-height: var(--_typography---line-height--3);
+  font-weight: var(--_typography---font--primary-medium);
+  letter-spacing: var(--_typography---letter-spacing--tight-1);
+}
+.u-text-style-h6 {
+  font-size: var(--_typography---font-size--h6);
+  line-height: var(--_typography---line-height--3);
+  font-weight: var(--_typography---font--primary-medium);
+  letter-spacing: var(--_typography---letter-spacing--normal);
+}
+.u-text-style-large {
+  font-size: var(--_typography---font-size--text-large);
+  line-height: var(--_typography---line-height--4);
+  font-weight: var(--_typography---font--primary-regular);
+}
+.u-text-style-medium {
+  font-size: var(--_typography---font-size--text-medium);
+  line-height: var(--_typography---line-height--5);
+  font-weight: var(--_typography---font--primary-regular);
+}
+.u-text-style-main {
+  font-size: var(--_typography---font-size--text-main);
+  line-height: var(--_typography---line-height--5);
+  font-weight: var(--_typography---font--primary-regular);
+}
+.u-text-style-small {
+  font-size: var(--_typography---font-size--text-small);
+  line-height: var(--_typography---line-height--5);
+  font-weight: var(--_typography---font--primary-regular);
+}
+.u-text-style-tiny {
+  font-size: var(--_typography---font-size--text-tiny);
+  line-height: var(--_typography---line-height--5);
+  font-weight: var(--_typography---font--primary-regular);
+}
+
+/* --- Text wrappers & alignment ------------------------------------------- */
+.u-heading,
+.u-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 100%;
+  align-items: inherit;
+  justify-content: inherit;
+}
+.u-alignment-center {
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  --_alignment---direction: center;
+}
+.u-margin-trim {
+  display: block;
+}
+
+/* --- Buttons wrapper ----------------------------------------------------- */
+.u-button-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--_spacing---space--3);
+  justify-content: inherit;
+  align-items: center;
+}
+
+/* --- Display / structural helpers ---------------------------------------- */
+.u-display-none {
+  display: none !important;
+}
+.u-display-contents {
+  display: contents;
+}
+.u-cover-absolute {
+  position: absolute;
+  inset: 0;
+}
+.u-ignore-trim {
+  /* marker: excluded from margin-trim (see section 1) */
+}
+.u-rich-text {
+  display: block;
+}
+
+/* --- Screen-reader only -------------------------------------------------- */
+.u-sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- Responsive variable system (reconstructed) -------------------------
+   Component code reads:  display: var(--flex-medium, grid);
+                          grid-template-columns: repeat(calc(... var(--_responsive---large) ...));
+   Defaults = "large". Container queries below target descendants of .u-container
+   (the inline-size container) and flip the flags + set keyword variables at each
+   breakpoint. Keyword vars are unset above their breakpoint so the var() fallback
+   (the "large" value) applies.
+   Breakpoints: large 50em+ · medium 35–50em · small 20–35em · xsmall <20em.
+   ------------------------------------------------------------------------- */
+:root {
+  --_responsive---large: 1;
+  --_responsive---medium: 0;
+  --_responsive---small: 0;
+  --_responsive---xsmall: 0;
+}
+@container (width <= 50em) {
+  * {
+    --_responsive---large: 0;
+    --_responsive---medium: 1;
+    --_responsive---small: 0;
+    --_responsive---xsmall: 0;
+    --flex-medium: flex;
+    --none-medium: none;
+    --column-medium: column;
+    --row-medium: row;
+    --start-medium: start;
+    --center-medium: center;
+    --end-medium: end;
+    --first-medium: -1;
+    --last-medium: 1;
+    --unset-medium: unset;
+    --relative-medium: relative;
+  }
+}
+@container (width <= 35em) {
+  * {
+    --_responsive---medium: 0;
+    --_responsive---small: 1;
+    --flex-small: flex;
+    --none-small: none;
+    --column-small: column;
+    --row-small: row;
+    --start-small: start;
+    --center-small: center;
+    --end-small: end;
+    --first-small: -1;
+    --last-small: 1;
+    --unset-small: unset;
+    --relative-small: relative;
+  }
+}
+@container (width <= 20em) {
+  * {
+    --_responsive---small: 0;
+    --_responsive---xsmall: 1;
+    --flex-xsmall: flex;
+    --none-xsmall: none;
+    --column-xsmall: column;
+    --row-xsmall: row;
+    --start-xsmall: start;
+    --center-xsmall: center;
+    --end-xsmall: end;
+    --first-xsmall: -1;
+    --last-xsmall: 1;
+    --unset-xsmall: unset;
+    --relative-xsmall: relative;
+  }
+}
+
+/* --- threshold-* responsive utilities (from the global style) ------------ */
+body {
+  container-name: threshold-large threshold-medium threshold-small;
+  container-type: inline-size;
+}
+@container threshold-large (width >= 62em) {
+  .u-order-unset-above {
+    order: unset !important;
+  }
+  .u-all-unset-above {
+    all: unset !important;
+  }
+  .u-grid-below {
+    display: flex !important;
+  }
+}
+@container threshold-medium (width >= 48em) {
+  .u-order-unset-above {
+    order: unset !important;
+  }
+  .u-all-unset-above {
+    all: unset !important;
+  }
+  .u-grid-below {
+    display: flex !important;
+  }
+}
+@container threshold-small (width >= 30em) {
+  .u-order-unset-above {
+    order: unset !important;
+  }
+  .u-all-unset-above {
+    all: unset !important;
+  }
+  .u-grid-below {
+    display: flex !important;
+  }
+}
+@container threshold-large (width < 62em) {
+  .u-order-unset-below {
+    order: unset !important;
+  }
+  .u-all-unset-below {
+    all: unset !important;
+  }
+  .u-grid-above {
+    display: flex !important;
+  }
+}
+@container threshold-medium (width < 48em) {
+  .u-order-unset-below {
+    order: unset !important;
+  }
+  .u-all-unset-below {
+    all: unset !important;
+  }
+  .u-grid-above {
+    display: flex !important;
+  }
+}
+@container threshold-small (width < 30em) {
+  .u-order-unset-below {
+    order: unset !important;
+  }
+  .u-all-unset-below {
+    all: unset !important;
+  }
+  .u-grid-above {
+    display: flex !important;
+  }
+}

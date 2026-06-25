@@ -15,7 +15,12 @@ dev can add or update them.
 3. Write clear, step-by-step instructions and examples.
 4. Commit and push so the whole team gets it.
 
-## Example skills
+## Skills in this repo
+- `lumos-skill`  → Build responsive layouts with the Lumos Framework (Webflow or
+  vanilla HTML/CSS/JS). Includes `assets/lumos-foundation.css` and a vanilla-mode
+  reference. Snapshot of the upstream plugin (v1.0.0) so the whole team has it via Git.
+
+## Other example skills (ideas)
 - `swiper-standard`  → team's standard Swiper.js config
 - `gsap-section`     → standard section animation pattern
 - `daily-report`     → how to generate the daily report

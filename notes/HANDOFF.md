@@ -1,8 +1,41 @@
 # Handoff — Figma to HTML
 
+## ⭐ Checkpoint terakhir (2026-06-26) — Hybrid Lumos + scoped CSS
+
+**Status: SELESAI di branch `spec/hybrid-lumos-css` (sudah di-push). `main` BELUM tersentuh.
+PR belum dibuka** (`gh` tak terpasang di mesin) → buka manual:
+`https://github.com/myuzara02/figma-to-html/compare/main...spec/hybrid-lumos-css?expand=1`
+(judul/body PR siap-tempel ada di transkrip sesi ini). Setelah PR di-review → merge.
+
+**Kenapa ada checkpoint ini:** output lama terlalu "disederhanakan" (mint jadi putih, dekorasi
+hilang) dan lambat. Prinsip baru: **Lumos-first → CSS-fallback → token-always** — pakai Lumos
+kalau pas, turun ke CSS scoped kalau tak ada padanan, tapi tiap nilai mentah **terlihat & beralasan**.
+Dibuktikan 2 POC yang jauh lebih mirip Figma: `cache/problem-hybrid.html`, `cache/team-hybrid.html`
+(gitignored, lokal saja).
+
+**Yang berubah (5 task TDD, full suite 137/137, final review 0 Critical/0 Important):**
+- **Linter dua-tingkat** (`scripts/src/dc/lint.ts`): tiap issue punya `severity` — `error` (token ada,
+  `suggestion` menyebut tokennya → wajib fix) vs `flag` (tak ada token → escape-hatch, boleh, dilaporkan).
+  px di-snap ke skala; warna netral-isi → error, brand/dekoratif/non-fill → flag; **`rem` tak dicek**.
+- **Skala token disinkron** (`default-scales.ts`): `DEFAULT_SPACING_SCALE` dibetulkan ke nilai foundation
+  desktop **8/12/16/24/32/40/48/64** (dulu `space--1/2/6/7/8` salah).
+- **Doc mapping** `.claude/skills/figma-to-lumos/references/tailwind-to-lumos.md` (px→token, `text-[N]`→tier,
+  warna→var/scoped, layout→utility/flex) — alur baru: **terjemah LANGSUNG dari DC** pakai tabel ini.
+- **Aturan hybrid di SKILL.md**: prinsip di atas + konvensi komentar tiap blok scoped + langkah lint dua-tingkat.
+- **Tidak menyentuh** merge/IR & type-scale (sengaja out-of-scope).
+
+**Knob yang bisa diatur nanti:** toleransi linter = konstanta di `lint.ts` (`SPACING_SNAP_TOL_PX=2`,
+`NEUTRAL_CHROMA_TOL=12`); skala token di `default-scales.ts`; mapping & aturan = markdown.
+Spec: `docs/superpowers/specs/2026-06-26-hybrid-lumos-css-design.md` · Plan: `docs/superpowers/plans/2026-06-26-hybrid-lumos-css.md`
+
+**Lanjutan saat resume:** (1) buka & merge PR; (2) re-run konversi section lama dengan aturan hybrid;
+(3) opsional: pasang `gh` (`brew install gh && gh auth login`) biar PR bisa otomatis.
+
+---
+
 ## Current Status
-**v1 END-TO-END BEKERJA.** `Figma node → IR → Lumos (lint bersih)` sudah terbukti pada node nyata
-`4388:3408` (file 40H_Snackd). Sisa: penyempurnaan akurasi + subsistem **Verify visual**.
+**v1 END-TO-END BEKERJA** + **mode hybrid baru** (lihat checkpoint di atas). `Figma node → Lumos`
+terbukti pada node nyata (`4388:3408` stats, `4388:2806` hero, `4388:3650` team, `4388:2879` problem).
 
 Cara pakai (skill `figma-to-lumos` + `lumos-skill`):
 1. `get_metadata` + `get_design_context` (excludeScreenshot) untuk node → simpan ke file.
@@ -62,8 +95,12 @@ menolak pelanggaran. **WAJIB baca `2026-06-25-ir-contract-notes.md` bagian "Cata
 - [x] Remote git: https://github.com/myuzara02/figma-to-html (main pushed)
 
 ## Next
-- [ ] Aktifkan Figma MCP (`/mcp` authenticate) → spike Extract pada node 4388-3408
-- [ ] Brainstorm → spec → plan → build Extract subsystem
+- [ ] **Buka & merge PR `spec/hybrid-lumos-css`** (lihat checkpoint teratas) → setelah merge, hapus branch.
+- [ ] Re-run konversi section lama dengan aturan hybrid (Lumos-first → CSS-fallback → token-always).
+- [ ] (Opsional) pasang `gh` agar PR berikutnya bisa dibuka otomatis.
+
+> Catatan: bagian "Plan #4/#5" & "Resume instructions" di bawah = **arsip historis** (sudah selesai);
+> simpan untuk konteks, bukan to-do aktif.
 
 ## Key Decisions
 - Stack: **Lumos** (mode Webflow), animasi GSAP/Swiper sesuai kebutuhan.

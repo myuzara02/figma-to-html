@@ -79,7 +79,10 @@ Each node has: `role`, `text`, `style`, `asset`, `layout`, `children`.
   → `<p>`). Put the **verbatim `text`** inside. Wrap in `u-heading`/`u-text` + `data-number="N"`
   only when a max line width is needed.
 - **role `divider`** → a thin `<div>` component class (e.g. `border-top` via `var(--border-width--main)`).
-- **role `image`** → `<img>` with a component class; `src` = `asset.url` (snapshot it — URLs expire).
+- **role `image`** → `<img>` with a component class. For `src`: use a **real CDN URL** (the Figma MCP
+  `asset.url` is fine, but it expires ~7 days — snapshot/host it yourself and swap in), **or `#`** as a
+  placeholder. **Never** a `<…>` text placeholder (that's invalid HTML). When you show output in chat,
+  abbreviate with `#`, not `<asset>`.
 - **layout** — **PREFER Lumos layout utilities (combo classes) over hand-written flex.** Reach for a
   utility whenever it reasonably fits; use raw `display: flex` only as a fallback.
   - `"grid"` → `u-grid-above` on the `_layout` div; set `--_column-count---value` to the column count.

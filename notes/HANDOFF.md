@@ -1,7 +1,13 @@
 # Handoff — Figma to HTML
 
 ## Current Status
-In progress. Figma MCP aktif & ter-auth. **Next up: Plan #2** dari subsistem "Design Context → Lumos".
+**v1 END-TO-END BEKERJA.** `Figma node → IR → Lumos (lint bersih)` sudah terbukti pada node nyata
+`4388:3408` (file 40H_Snackd). Sisa: penyempurnaan akurasi + subsistem **Verify visual**.
+
+Cara pakai (skill `figma-to-lumos` + `lumos-skill`):
+1. `get_metadata` + `get_design_context` (excludeScreenshot) untuk node → simpan ke file.
+2. dari `scripts/`: `npx tsx src/dc/cli.ts <meta.xml> <dc.jsx>` → EnrichedNode JSON.
+3. terjemahkan IR → Lumos (ikut SKILL.md + lumos-skill + gates), lalu `lintLumos` sampai bersih.
 
 ## Arsitektur (disempurnakan setelah spike Figma MCP)
 Spike menunjukkan `get_design_context` sudah memberi layout+style+teks (Tailwind). Jadi
@@ -15,9 +21,10 @@ Alur: `get_design_context`+`get_metadata` → [Facts Extractor deterministik] �
 - 4–5 **Parsers** (`parse-meta.ts`, `parse-dc.ts`) ✅ **DONE** (merged+pushed, 79 tests)
 - 6a **Node enrichment** (`role.ts`, `type-style.ts`, `resolve-style.ts`) ✅ **DONE** (merged+pushed, 93 tests)
 - 6b **Merger** (`enriched.ts` EnrichedNode, `resolve-layout.ts`, `merge.ts` mergeDesign) ✅ **DONE** (merged, 105 tests) — `mergeDesign(parseMetadata(xml), parseDesignContext(jsx), scales)` → pohon IR diperkaya utuh. (+ `bg-*` color di parseTailwind/resolveStyle)
-- 7–8 **Agent translator skill + Linter** — **Plan #5 (NEXT)**
+- 7 **Agent translator skill** (`.claude/skills/figma-to-lumos/SKILL.md`) ✅ **DONE** (authored; live-run validated)
+- 8 **Linter** (`lint.ts` lintLumos) ✅ **DONE** (merged, 117 tests) + `default-scales.ts`, `run.ts` runMerge, `cli.ts`
 - Inference engine (koordinat → Layout Tree) ✅ DONE (subsistem fallback)
-- Verify visual — belum
+- **Verify visual (render→screenshot→banding) — belum (penyempurna, subsistem berikutnya)**
 
 ## Plan #5 (NEXT) = Agent translator skill + Linter (modul 7–8)
 Translator (skill `figma-to-lumos`) konsumsi pohon `EnrichedNode` → markup Lumos; Linter deterministik

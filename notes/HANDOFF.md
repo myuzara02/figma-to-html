@@ -11,21 +11,26 @@ subsistem lama Extract + Map→Lumos **disatukan** jadi "Design Context → Lumo
 Alur: `get_design_context`+`get_metadata` → [Facts Extractor deterministik] → [Agent translator] → [Linter] → (Verify nanti).
 
 ## Status modul (8 modul, lihat spec §4)
-- 1–3 **Value primitives** (Tailwind parser, spacing snapper, color mapper) ✅ **DONE** (merged, 67 tests)
-- 4–6 Parsers + Merger → IR diperkaya — **Plan #2 (NEXT)**
-- 7–8 Agent translator skill + Linter — Plan #3
+- 1–3 **Value primitives** (Tailwind parser, spacing snapper, color mapper) ✅ **DONE** (merged+pushed, 67 tests)
+- 4–5 **Parsers** (`parse-meta.ts` metadata XML→tree absolut, `parse-dc.ts` DC JSX→{assets,nodes}) ✅ **DONE** (merged, 79 tests)
+- 6 **Merger → IR diperkaya** — **Plan #3 (NEXT)**
+- 7–8 Agent translator skill + Linter — Plan #4
 - Inference engine (koordinat → Layout Tree) ✅ DONE (subsistem fallback)
 - Verify visual — belum
 
-## Resume instructions for next session
-1. Baca spec `2026-06-25-design-context-to-lumos-design.md`, spike `2026-06-25-extract-spike-findings.md`,
-   dan `2026-06-25-ir-contract-notes.md`.
-2. Figma MCP: kalau tool `figma` belum ter-load, `/mcp` → authenticate figma. Sample node tetap `4388-3408`.
-3. **Plan #2** = modul 4–6: DC parser (JSX blob → tree), metadata parser (XML → geometri),
-   merger → IR diperkaya (pakai fixture nyata dari spike; non-autolayout → panggil inference engine).
-   Pola: brainstorm/refine → writing-plans → subagent-driven.
-   - Catatan akurasi dari final review Plan #1: merger HARUS meneruskan `residualPx`/`distance` ke IR
-     (sinyal confidence), preserve alpha warna untuk `color-mix`, dan kenali `h-0 w-full`+img sebagai `role: divider`.
+## Resume instructions for next session (Plan #3 = Merger, modul 6)
+1. Baca spec `2026-06-25-design-context-to-lumos-design.md` (§4 modul 6, §6 error handling) + `2026-06-25-ir-contract-notes.md`.
+2. Merger menyusuri pohon `MetaNode` (dari `parseMetadata`) dan lookup `ParsedDC.nodes[id]` (dari `parseDesignContext`).
+   Output = IR diperkaya (`LayoutBox` + `text`/`style`/`role`/`asset`/sinyal confidence).
+3. **Catatan akurasi dari final review Plan #2 (WAJIB diperhatikan di merger):**
+   - **ID match aman:** `MetaNode.id` & key `ParsedDC.nodes` sama-sama colon form (`"4388:3413"`) → `nodes[meta.id]` langsung resolve. Jangan over-normalize.
+   - **Missing-node WAJIB ditangani dua arah:** banyak node metadata TANPA entri DC → fallback ke metadata-only (geometri+type) + inference engine. Jangan asумsikan entri DC selalu ada.
+   - **`MetaNode` = superset `InputNode`** → suapkan subtree metadata langsung ke `inferLayout` untuk kasus absolute/non-autolayout.
+   - **Role detection:** gabung `MetaNode.type` (text/vector/frame) + DC className + ada/tidaknya `assetVar`. JANGAN andalkan `MetaNode.name` (generik); hanya nama node text = isi teksnya.
+   - **Aset:** `nodes[id].assetVar` → key ke `assets[assetVar]` (URL). SVG `<use href>` belum ditangkap (hanya `src=`) → fallback `type==="vector"`. URL kedaluwarsa ~7 hari → download/snapshot, jangan simpan URL mentah.
+   - **Threading:** merger yang isi `confidence` (dari `classifyArrangement`), alpha warna (dari `parseTailwind`/`mapColor` atas `rgba(...)` di className), `residualPx`/`distance` (dari value primitives).
+   - Test merger pakai fixture yang parser tak cakup: node ada di metadata tapi tidak di DC, dan node vector/svg.
+4. Figma MCP: kalau tool `figma` belum ter-load, `/mcp` → authenticate. Sample node `4388-3408`.
 
 ## Main Files
 - `scripts/src/` → inference engine (geometry, ir, banding, classify, derive, infer-layout)

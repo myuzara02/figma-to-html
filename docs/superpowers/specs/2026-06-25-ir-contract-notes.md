@@ -44,3 +44,26 @@ yang sudah disepakati; dicatat agar tidak hilang.
   `stack`/confidence 0.4 (benar: low-confidence akan dirutekan ke vision). Ini "banding refinement"
   yang memang sudah ditandai ditunda.
 - **`deriveJustify` cenderung `center`** untuk anak tunggal dengan padding simetris (lihat poin 3).
+
+## Catatan kontrak untuk Plan #4 (merger) — dari final review Plan #3
+
+Modul enrichment (`role.ts`, `type-style.ts`, `resolve-style.ts`) sudah jadi & merged. Merger
+yang menyusun IR diperkaya WAJIB memperhatikan:
+
+1. **Role taxonomy = struktural saja.** `detectRole` hanya keluar `image|divider|text|container|unknown`
+   — TIDAK bisa bedakan button/link/icon/list (inputnya tak cukup). Merger harus **refine semantik**
+   pakai sinyal DC: `container→button` (frame + child text + bg), `text→link` (interaksi/href),
+   `image→icon` (vector kecil). Jangan paksa ke `detectRole`; tambah pass kedua di merger.
+2. **`colorVar` & `textStyle` selalu di-set ke "terdekat"** (snap tanpa threshold). AMAN hanya kalau
+   konsumen membaca sinyal pendampingnya: **gate `colorDistance`** (jauh → tandai review, jangan pakai)
+   dan **gate `textStyleResidualPx`** (mis. |residual|>threshold → emit size override, kalau tidak
+   heading 100px ke-render 64px → meleset diam-diam). Tentukan threshold di Plan #4/#5, surface
+   `colorNeedsReview`/`sizeNeedsOverride` sebagai satu sumber kebenaran (translator + linter sepakat).
+3. **Background/fill color BELUM ditangkap.** `parseTailwind` hanya parse `text-*` (warna teks), bukan
+   `bg-*`. Container fill akan **hilang diam-diam** — ini silent-loss paling mungkin berikutnya.
+   Plan #4 (atau ekstensi kecil `parseTailwind`) harus tambah `bg-*` → `bgColorVar`/`bgColorAlpha`.
+4. **Field IR diperkaya yang harus di-thread merger:** `text` verbatim (dari DC), `asset` URL
+   (`assets[assetVar]`) + flag placeholder bila kedaluwarsa, `confidence` (band 0.3–0.9; 1.0 ≠ terverifikasi),
+   `bgColor`, dan flag review di atas.
+5. **Multi-text-run collapse:** satu node text dengan beberapa gaya/weight per-span → `StyleFacts`/`StyleInfo`
+   memodelkan SATU gaya per node. Batas data-loss yang diketahui; translator jangan asумsikan per-node = per-run uniform.

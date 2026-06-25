@@ -1,5 +1,6 @@
 import { snapSpacing } from "./spacing";
-import { DEFAULT_SPACING_SCALE } from "./default-scales";
+import { parseColor, mapColor, type Rgba } from "./color";
+import { DEFAULT_SPACING_SCALE, DEFAULT_PALETTE } from "./default-scales";
 
 export type Severity = "error" | "flag";
 
@@ -12,6 +13,15 @@ export interface LintIssue {
 
 /** A px value within this many px of a spacing token must use the token. */
 const SPACING_SNAP_TOL_PX = 2;
+
+/** max(r,g,b) - min(r,g,b) at or below this = an achromatic neutral the theme covers. */
+const NEUTRAL_CHROMA_TOL = 12;
+/** Properties whose color is a solid fill the theme palette can express. */
+const FILL_PROPS = new Set(["color", "background", "background-color", "border-color", "outline-color", "fill", "stroke"]);
+
+function chroma(c: Rgba): number {
+  return Math.max(c.r, c.g, c.b) - Math.min(c.r, c.g, c.b);
+}
 
 /** A declaration whose values are inherently raw (shadows, blurs, gradients). */
 function isDecorative(prop: string, value: string): boolean {
@@ -28,9 +38,21 @@ function pxIssue(match: string, px: number, decorative: boolean): LintIssue {
   return { rule: "no-px", match, severity: "flag" };
 }
 
-// Colors are emitted as flag here; Task 3 upgrades to two-tier.
-function colorIssue(rule: string, match: string): LintIssue {
-  return { rule, match, severity: "flag" };
+function colorIssue(rule: string, match: string, prop: string, decorative: boolean): LintIssue {
+  const c = parseColor(match);
+  const isFill = FILL_PROPS.has(prop) || prop.startsWith("border");
+  if (decorative || !isFill || !c || chroma(c) > NEUTRAL_CHROMA_TOL) {
+    return { rule, match, severity: "flag" };
+  }
+  const m = mapColor(match, DEFAULT_PALETTE);
+  let suggestion: string | undefined;
+  if (m) {
+    suggestion =
+      c.a < 1
+        ? `use color-mix(in hsl, var(${m.themeVar}) ${Math.round(c.a * 100)}%, transparent)`
+        : `use var(${m.themeVar})`;
+  }
+  return { rule, match, severity: "error", suggestion };
 }
 
 const DECL_RE = /([a-zA-Z-]+)\s*:\s*([^;{}]+)/g;
@@ -49,8 +71,8 @@ export function lintLumos(html: string): LintIssue[] {
       const value = decl[2];
       const dec = isDecorative(prop, value);
       for (const m of value.matchAll(PX_RE)) issues.push(pxIssue(m[0], Number(m[1]), dec));
-      for (const m of value.matchAll(HEX_RE)) issues.push(colorIssue("no-hex", m[0]));
-      for (const m of value.matchAll(RGBA_RE)) issues.push(colorIssue("raw-color", m[0]));
+      for (const m of value.matchAll(HEX_RE)) issues.push(colorIssue("no-hex", m[0], prop, dec));
+      for (const m of value.matchAll(RGBA_RE)) issues.push(colorIssue("raw-color", m[0], prop, dec));
     }
   }
 

@@ -4,9 +4,19 @@ import { snapSpacing } from "../../src/dc/spacing";
 import { mapTypeStyle } from "../../src/dc/type-style";
 
 describe("default scales", () => {
-  it("spacing scale covers space--1..8 and snaps sensibly", () => {
-    expect(DEFAULT_SPACING_SCALE).toHaveLength(8);
-    expect(snapSpacing(80, DEFAULT_SPACING_SCALE).token).toBe("space--8");
+  it("spacing scale matches the Lumos foundation (desktop px) and snaps sensibly", () => {
+    expect(DEFAULT_SPACING_SCALE).toEqual([
+      { token: "space--1", px: 8 },
+      { token: "space--2", px: 12 },
+      { token: "space--3", px: 16 },
+      { token: "space--4", px: 24 },
+      { token: "space--5", px: 32 },
+      { token: "space--6", px: 40 },
+      { token: "space--7", px: 48 },
+      { token: "space--8", px: 64 },
+    ]);
+    expect(snapSpacing(40, DEFAULT_SPACING_SCALE).token).toBe("space--6");
+    expect(snapSpacing(64, DEFAULT_SPACING_SCALE).token).toBe("space--8");
     expect(snapSpacing(16, DEFAULT_SPACING_SCALE).token).toBe("space--3");
   });
   it("type scale maps common sizes to the right tier", () => {

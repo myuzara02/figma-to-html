@@ -3,16 +3,16 @@ import type { TypeScale } from "./type-style";
 import type { ThemePalette } from "./color";
 import type { MergeScales } from "./merge";
 
-/** Representative Lumos spacing values (rem→px at a 16px base). Tunable starting defaults. */
+/** Lumos spacing values at desktop (max-clamp px), synced to lumos-foundation.css. */
 export const DEFAULT_SPACING_SCALE: SpacingScale = [
-  { token: "space--1", px: 4 },
-  { token: "space--2", px: 8 },
+  { token: "space--1", px: 8 },
+  { token: "space--2", px: 12 },
   { token: "space--3", px: 16 },
   { token: "space--4", px: 24 },
   { token: "space--5", px: 32 },
-  { token: "space--6", px: 48 },
-  { token: "space--7", px: 64 },
-  { token: "space--8", px: 80 },
+  { token: "space--6", px: 40 },
+  { token: "space--7", px: 48 },
+  { token: "space--8", px: 64 },
 ];
 
 /** Representative Lumos type-style tiers (px). Tunable starting defaults. */

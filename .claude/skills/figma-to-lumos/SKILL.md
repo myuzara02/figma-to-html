@@ -45,7 +45,16 @@ layout). You only do the **translation** — never invent text, color, or number
 5. **Lint:** run `lintLumos(output)` (import from `src/dc/lint`) on your generated HTML. Fix
    every issue (no `px`, no hex, no inline `style=`, component class ≤ 3 underscores) and re-lint
    until clean.
-6. **Output** the Lumos markup (+ a short report of any low-confidence nodes you had to guess).
+6. **Verify** (structural):
+   - Run `verifyIR(tree)` (import from `src/dc/verify`) on the enriched IR → a report of flagged
+     nodes (low layout confidence, high gap/type residual, far color, empty text, missing asset,
+     ambiguous stack). These are the spots the pipeline **guessed or approximated**.
+   - `get_screenshot(fileKey, nodeId)` → compare your output to the real Figma image **coarsely**:
+     is every block present, in the right order, grid-vs-stack correct? Focus on the flagged nodes.
+   - Fix the priority flags (e.g. a high gap residual that's really section spacing, a far-color
+     that needs an explicit theme override, a mis-roled node). Re-lint after fixes.
+7. **Output** the Lumos markup, plus a short report listing the remaining `verifyIR` flags so the dev
+   knows exactly what to double-check.
 
 ## Mapping (EnrichedNode → Lumos)
 
